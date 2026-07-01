@@ -1,0 +1,154 @@
+{
+  "generated_utc": "2026-07-01T00:06:30.459064+00:00",
+  "dataset": {
+    "shape": [
+      46,
+      32,
+      1000
+    ],
+    "sampling_rate_hz": 250,
+    "channels": [
+      "Fp1",
+      "Fp2",
+      "F3",
+      "F4",
+      "C3",
+      "C4",
+      "P3",
+      "P4",
+      "O1",
+      "O2",
+      "F7",
+      "F8",
+      "T3",
+      "T4",
+      "T5",
+      "T6",
+      "Fz",
+      "Cz",
+      "Pz",
+      "Oz",
+      "FC1",
+      "FC2",
+      "CP1",
+      "CP2",
+      "FC5",
+      "FC6",
+      "CP5",
+      "CP6",
+      "AF3",
+      "AF4",
+      "PO3",
+      "PO4"
+    ],
+    "label_names": [
+      "left_hand_mi",
+      "right_hand_mi"
+    ],
+    "label_counts": {
+      "left_hand_mi": 23,
+      "right_hand_mi": 23
+    },
+    "source_files": [
+      "E:\\世界机器人大赛\\projects\\arm_bci_robot\\data\\recordings\\2026-06-25\\21-46-57_session.npz",
+      "E:\\世界机器人大赛\\projects\\arm_bci_robot\\data\\recordings\\2026-06-25\\22-06-49_session.npz"
+    ],
+    "source_trial_counts": [
+      40,
+      6
+    ]
+  },
+  "quality": {
+    "shape": [
+      46,
+      32,
+      1000
+    ],
+    "sampling_rate_hz": 250,
+    "label_counts": {
+      "0": 23,
+      "1": 23
+    },
+    "label_names": [
+      "left_hand_mi",
+      "right_hand_mi"
+    ],
+    "channels": [
+      "Fp1",
+      "Fp2",
+      "F3",
+      "F4",
+      "C3",
+      "C4",
+      "P3",
+      "P4",
+      "O1",
+      "O2",
+      "F7",
+      "F8",
+      "T3",
+      "T4",
+      "T5",
+      "T6",
+      "Fz",
+      "Cz",
+      "Pz",
+      "Oz",
+      "FC1",
+      "FC2",
+      "CP1",
+      "CP2",
+      "FC5",
+      "FC6",
+      "CP5",
+      "CP6",
+      "AF3",
+      "AF4",
+      "PO3",
+      "PO4"
+    ],
+    "amplitude": {
+      "mean": 573.5488891601562,
+      "std": 4366.173828125,
+      "abs_p95": 9442.298828125,
+      "abs_p99": 11306.0087890625
+    },
+    "channel_variance": {
+      "min": 4540.306640625,
+      "median": 108499.265625,
+      "max": 1399358.625
+    },
+    "band_names": [
+      "delta",
+      "theta",
+      "mu",
+      "low_beta",
+      "high_beta",
+      "gamma_low"
+    ],
+    "class_mean_bandpower": {
+      "left_hand_mi": [
+        6.767562389373779,
+        3.4874300956726074,
+        1.9646259546279907,
+        2.0955145359039307,
+        1.3953529596328735,
+        1.6514239311218262
+      ],
+      "right_hand_mi": [
+        5.401847839355469,
+        3.7404844760894775,
+        1.999872088432312,
+        2.0770263671875,
+        1.3738863468170166,
+        1.631630778312683
+      ]
+    }
+  },
+  "plots": {
+    "label_distribution": "E:\\世界机器人大赛\\wyu-bci-bench\\outputs\\binary_mi_analysis_all_channels\\label_distribution.svg",
+    "psd": "E:\\世界机器人大赛\\wyu-bci-bench\\outputs\\binary_mi_analysis_all_channels\\psd.svg",
+    "band_energy_heatmap": "E:\\世界机器人大赛\\wyu-bci-bench\\outputs\\binary_mi_analysis_all_channels\\band_energy_heatmap.svg",
+    "mu_class_difference_topomap": "E:\\世界机器人大赛\\wyu-bci-bench\\outputs\\binary_mi_analysis_all_channels\\mu_class_difference_topomap.svg"
+  }
+}

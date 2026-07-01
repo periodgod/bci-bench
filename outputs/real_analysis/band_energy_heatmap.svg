@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="687" height="219" viewBox="0 0 687 219">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="343.5" y="28.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="18" fill="#222" text-anchor="middle">Log band energy by channel</text>
+<text x="141.0" y="43.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="10" fill="#222" text-anchor="middle">delta</text>
+<text x="233.0" y="43.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="10" fill="#222" text-anchor="middle">theta</text>
+<text x="325.0" y="43.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="10" fill="#222" text-anchor="middle">mu</text>
+<text x="417.0" y="43.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="10" fill="#222" text-anchor="middle">low_beta</text>
+<text x="509.0" y="43.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="10" fill="#222" text-anchor="middle">high_beta</text>
+<text x="601.0" y="43.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="10" fill="#222" text-anchor="middle">gamma_low</text>
+<text x="85.0" y="73.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="10" fill="#222" text-anchor="end">C3</text>
+<rect x="95" y="55" width="92" height="28" fill="#f5bb40" stroke="#ffffff"/>
+<rect x="187" y="55" width="92" height="28" fill="#6c9f6d" stroke="#ffffff"/>
+<rect x="279" y="55" width="92" height="28" fill="#278985" stroke="#ffffff"/>
+<rect x="371" y="55" width="92" height="28" fill="#3c967d" stroke="#ffffff"/>
+<rect x="463" y="55" width="92" height="28" fill="#6b9f6d" stroke="#ffffff"/>
+<rect x="555" y="55" width="92" height="28" fill="#87a564" stroke="#ffffff"/>
+<text x="85.0" y="101.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="10" fill="#222" text-anchor="end">Cz</text>
+<rect x="95" y="83" width="92" height="28" fill="#a3aa5b" stroke="#ffffff"/>
+<rect x="187" y="83" width="92" height="28" fill="#73a16a" stroke="#ffffff"/>
+<rect x="279" y="83" width="92" height="28" fill="#268f84" stroke="#ffffff"/>
+<rect x="371" y="83" width="92" height="28" fill="#499878" stroke="#ffffff"/>
+<rect x="463" y="83" width="92" height="28" fill="#2d7489" stroke="#ffffff"/>
+<rect x="555" y="83" width="92" height="28" fill="#2f6e8a" stroke="#ffffff"/>
+<text x="85.0" y="129.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="10" fill="#222" text-anchor="end">C4</text>
+<rect x="95" y="111" width="92" height="28" fill="#4e9977" stroke="#ffffff"/>
+<rect x="187" y="111" width="92" height="28" fill="#2c7a88" stroke="#ffffff"/>
+<rect x="279" y="111" width="92" height="28" fill="#345e8d" stroke="#ffffff"/>
+<rect x="371" y="111" width="92" height="28" fill="#2e728a" stroke="#ffffff"/>
+<rect x="463" y="111" width="92" height="28" fill="#298387" stroke="#ffffff"/>
+<rect x="555" y="111" width="92" height="28" fill="#259084" stroke="#ffffff"/>
+</svg>

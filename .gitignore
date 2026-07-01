@@ -1,0 +1,3 @@
+*.mat *.npy *.npz *.zip
+__pycache__/ *.pyc .venv/ .idea/ .vscode/ logs/ *.log
+data/ outputs/

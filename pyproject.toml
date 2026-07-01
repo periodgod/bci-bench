@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wyu-bci-bench"
+version = "0.1.0"
+description = "Private EEG data analysis and model benchmark toolkit for WYU BCI projects."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.23",
+]
+
+[project.optional-dependencies]
+ml = ["torch>=2.0"]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+wyu-bci-bench = "wyu_bci_bench.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

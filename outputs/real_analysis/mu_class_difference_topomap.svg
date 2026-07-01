@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="500" viewBox="0 0 520 500">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="260.0" y="32.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="18" fill="#222" text-anchor="middle">8-12 Hz class difference</text>
+<circle cx="260.0" cy="260.0" r="180" fill="#f7f7f7" stroke="#333" stroke-width="2"/>
+<path d="M 232.0 84.0 Q 260.0 45.0 288.0 84.0" fill="none" stroke="#333" stroke-width="2"/>
+<circle cx="173.6" cy="260.0" r="28" fill="#7b9dcd" stroke="#ffffff" stroke-width="2"/>
+<text x="173.6" y="264.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="10" fill="#222" text-anchor="middle">C3</text>
+<text x="173.6" y="302.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="9" fill="#555" text-anchor="middle">-0.14</text>
+<circle cx="260.0" cy="260.0" r="28" fill="#3268b4" stroke="#ffffff" stroke-width="2"/>
+<text x="260.0" y="264.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="10" fill="#222" text-anchor="middle">Cz</text>
+<text x="260.0" y="302.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="9" fill="#555" text-anchor="middle">-0.22</text>
+<circle cx="346.4" cy="260.0" r="28" fill="#3167b4" stroke="#ffffff" stroke-width="2"/>
+<text x="346.4" y="264.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="10" fill="#222" text-anchor="middle">C4</text>
+<text x="346.4" y="302.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="9" fill="#555" text-anchor="middle">-0.22</text>
+<text x="260.0" y="482.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="11" fill="#666" text-anchor="middle">blue: lower in class 2, red: higher in class 2</text>
+</svg>

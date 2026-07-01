@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="420" viewBox="0 0 840 420">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="420.0" y="28.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="18" fill="#222" text-anchor="middle">Label distribution</text>
+<line x1="70" y1="330" x2="810" y2="330" stroke="#333"/>
+<line x1="70" y1="50" x2="70" y2="330" stroke="#333"/>
+<rect x="82.0" y="208.3" width="79.0" height="121.7" fill="#2f5f9f"/>
+<text x="121.5" y="352.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="11" fill="#222" text-anchor="middle">backward</text>
+<text x="121.5" y="202.3" font-family="Arial, Microsoft YaHei, sans-serif" font-size="11" fill="#222" text-anchor="middle">10</text>
+<rect x="173.0" y="281.3" width="79.0" height="48.7" fill="#b24b43"/>
+<text x="212.5" y="352.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="11" fill="#222" text-anchor="middle">right</text>
+<text x="212.5" y="275.3" font-family="Arial, Microsoft YaHei, sans-serif" font-size="11" fill="#222" text-anchor="middle">4</text>
+<rect x="264.0" y="269.1" width="79.0" height="60.9" fill="#4c8a4b"/>
+<text x="303.5" y="352.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="11" fill="#222" text-anchor="middle">up</text>
+<text x="303.5" y="263.1" font-family="Arial, Microsoft YaHei, sans-serif" font-size="11" fill="#222" text-anchor="middle">5</text>
+<rect x="355.0" y="281.3" width="79.0" height="48.7" fill="#8a5aa8"/>
+<text x="394.5" y="352.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="11" fill="#222" text-anchor="middle">down</text>
+<text x="394.5" y="275.3" font-family="Arial, Microsoft YaHei, sans-serif" font-size="11" fill="#222" text-anchor="middle">4</text>
+<rect x="446.0" y="196.1" width="79.0" height="133.9" fill="#b67d2c"/>
+<text x="485.5" y="352.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="11" fill="#222" text-anchor="middle">forward</text>
+<text x="485.5" y="190.1" font-family="Arial, Microsoft YaHei, sans-serif" font-size="11" fill="#222" text-anchor="middle">11</text>
+<rect x="537.0" y="317.8" width="79.0" height="12.2" fill="#2c8c8c"/>
+<text x="576.5" y="352.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="11" fill="#222" text-anchor="middle">left</text>
+<text x="576.5" y="311.8" font-family="Arial, Microsoft YaHei, sans-serif" font-size="11" fill="#222" text-anchor="middle">1</text>
+<rect x="628.0" y="50.0" width="79.0" height="280.0" fill="#555555"/>
+<text x="667.5" y="352.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="11" fill="#222" text-anchor="middle">left_hand_mi</text>
+<text x="667.5" y="44.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="11" fill="#222" text-anchor="middle">23</text>
+<rect x="719.0" y="50.0" width="79.0" height="280.0" fill="#c64f7f"/>
+<text x="758.5" y="352.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="11" fill="#222" text-anchor="middle">right_hand_mi</text>
+<text x="758.5" y="44.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="11" fill="#222" text-anchor="middle">23</text>
+<text x="20.0" y="190.0" font-family="Arial, Microsoft YaHei, sans-serif" font-size="12" fill="#222" text-anchor="start">Trials</text>
+</svg>

@@ -1,0 +1,347 @@
+{
+  "generated_utc": "2026-07-01T00:05:40.901598+00:00",
+  "dataset": {
+    "shape": [
+      46,
+      32,
+      1000
+    ],
+    "sampling_rate_hz": 250,
+    "channels": [
+      "Fp1",
+      "Fp2",
+      "F3",
+      "F4",
+      "C3",
+      "C4",
+      "P3",
+      "P4",
+      "O1",
+      "O2",
+      "F7",
+      "F8",
+      "T3",
+      "T4",
+      "T5",
+      "T6",
+      "Fz",
+      "Cz",
+      "Pz",
+      "Oz",
+      "FC1",
+      "FC2",
+      "CP1",
+      "CP2",
+      "FC5",
+      "FC6",
+      "CP5",
+      "CP6",
+      "AF3",
+      "AF4",
+      "PO3",
+      "PO4"
+    ],
+    "label_names": [
+      "left_hand_mi",
+      "right_hand_mi"
+    ],
+    "label_counts": {
+      "left_hand_mi": 23,
+      "right_hand_mi": 23
+    },
+    "source_files": [
+      "E:\\世界机器人大赛\\projects\\arm_bci_robot\\data\\recordings\\2026-06-25\\21-46-57_session.npz",
+      "E:\\世界机器人大赛\\projects\\arm_bci_robot\\data\\recordings\\2026-06-25\\22-06-49_session.npz"
+    ],
+    "source_trial_counts": [
+      40,
+      6
+    ]
+  },
+  "models": {
+    "fbcsp_lda_stable": {
+      "accuracy": 0.5,
+      "balanced_accuracy": 0.5,
+      "per_class_recall": {
+        "left_hand_mi": 0.4782608695652174,
+        "right_hand_mi": 0.5217391304347826
+      },
+      "confusion_matrix": [
+        [
+          11,
+          12
+        ],
+        [
+          11,
+          12
+        ]
+      ],
+      "label_order": [
+        "left_hand_mi",
+        "right_hand_mi"
+      ],
+      "elapsed_seconds": 8.584437200000139,
+      "folds": 5,
+      "fold_reports": [
+        {
+          "fold": 1,
+          "train_trials": 36,
+          "test_trials": 10,
+          "metrics": {
+            "accuracy": 0.2,
+            "balanced_accuracy": 0.2,
+            "per_class_recall": {
+              "left_hand_mi": 0.0,
+              "right_hand_mi": 0.4
+            },
+            "confusion_matrix": [
+              [
+                0,
+                5
+              ],
+              [
+                3,
+                2
+              ]
+            ],
+            "label_order": [
+              "left_hand_mi",
+              "right_hand_mi"
+            ],
+            "elapsed_seconds": 0.0
+          },
+          "selected_features": [
+            "8-12Hz:O2",
+            "8-12Hz:AF4",
+            "8-12Hz:PO3",
+            "8-12Hz:power:F8",
+            "8-12Hz:power:Fz",
+            "8-12Hz:power:CP6",
+            "8-12Hz:power:AF4",
+            "8-12Hz:power:PO3",
+            "12-16Hz:T6",
+            "12-16Hz:Pz",
+            "12-16Hz:FC2",
+            "12-16Hz:CP6"
+          ]
+        },
+        {
+          "fold": 2,
+          "train_trials": 36,
+          "test_trials": 10,
+          "metrics": {
+            "accuracy": 0.8,
+            "balanced_accuracy": 0.8,
+            "per_class_recall": {
+              "left_hand_mi": 0.8,
+              "right_hand_mi": 0.8
+            },
+            "confusion_matrix": [
+              [
+                4,
+                1
+              ],
+              [
+                1,
+                4
+              ]
+            ],
+            "label_order": [
+              "left_hand_mi",
+              "right_hand_mi"
+            ],
+            "elapsed_seconds": 0.0
+          },
+          "selected_features": [
+            "8-12Hz:F3",
+            "8-12Hz:F8",
+            "8-12Hz:Oz",
+            "8-12Hz:AF4",
+            "8-12Hz:PO3",
+            "8-12Hz:C3+C4",
+            "8-12Hz:power:F3",
+            "8-12Hz:power:F8",
+            "8-12Hz:power:Fz",
+            "8-12Hz:power:CP6",
+            "8-12Hz:power:AF4",
+            "8-12Hz:power:PO3"
+          ]
+        },
+        {
+          "fold": 3,
+          "train_trials": 36,
+          "test_trials": 10,
+          "metrics": {
+            "accuracy": 0.5,
+            "balanced_accuracy": 0.5,
+            "per_class_recall": {
+              "left_hand_mi": 0.4,
+              "right_hand_mi": 0.6
+            },
+            "confusion_matrix": [
+              [
+                2,
+                3
+              ],
+              [
+                2,
+                3
+              ]
+            ],
+            "label_order": [
+              "left_hand_mi",
+              "right_hand_mi"
+            ],
+            "elapsed_seconds": 0.0
+          },
+          "selected_features": [
+            "8-12Hz:Pz",
+            "8-12Hz:FC2",
+            "8-12Hz:PO3",
+            "8-12Hz:C3+C4",
+            "8-12Hz:power:T6",
+            "8-12Hz:power:Fz",
+            "8-12Hz:power:FC2",
+            "8-12Hz:power:CP6",
+            "8-12Hz:power:PO4",
+            "12-16Hz:Fp2",
+            "12-16Hz:P3",
+            "12-16Hz:P4"
+          ]
+        },
+        {
+          "fold": 4,
+          "train_trials": 38,
+          "test_trials": 8,
+          "metrics": {
+            "accuracy": 0.375,
+            "balanced_accuracy": 0.375,
+            "per_class_recall": {
+              "left_hand_mi": 0.25,
+              "right_hand_mi": 0.5
+            },
+            "confusion_matrix": [
+              [
+                1,
+                3
+              ],
+              [
+                2,
+                2
+              ]
+            ],
+            "label_order": [
+              "left_hand_mi",
+              "right_hand_mi"
+            ],
+            "elapsed_seconds": 0.0
+          },
+          "selected_features": [
+            "8-12Hz:T5",
+            "8-12Hz:PO3",
+            "8-12Hz:C3+C4",
+            "8-12Hz:power:P4",
+            "8-12Hz:power:F8",
+            "8-12Hz:power:Fz",
+            "8-12Hz:power:CP6",
+            "8-12Hz:power:PO3",
+            "8-12Hz:power:PO4",
+            "12-16Hz:Fp2",
+            "12-16Hz:F7",
+            "12-16Hz:T3"
+          ]
+        },
+        {
+          "fold": 5,
+          "train_trials": 38,
+          "test_trials": 8,
+          "metrics": {
+            "accuracy": 0.625,
+            "balanced_accuracy": 0.625,
+            "per_class_recall": {
+              "left_hand_mi": 1.0,
+              "right_hand_mi": 0.25
+            },
+            "confusion_matrix": [
+              [
+                4,
+                0
+              ],
+              [
+                3,
+                1
+              ]
+            ],
+            "label_order": [
+              "left_hand_mi",
+              "right_hand_mi"
+            ],
+            "elapsed_seconds": 0.0
+          },
+          "selected_features": [
+            "8-12Hz:O1",
+            "8-12Hz:FC2",
+            "8-12Hz:FC1-FC2",
+            "8-12Hz:power:P4",
+            "8-12Hz:power:F7",
+            "8-12Hz:power:T6",
+            "8-12Hz:power:Fz",
+            "8-12Hz:power:CP6",
+            "8-12Hz:power:PO3",
+            "8-12Hz:power:PO4",
+            "12-16Hz:T3",
+            "12-16Hz:Pz"
+          ]
+        }
+      ],
+      "predictions": [
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0
+      ]
+    }
+  }
+}

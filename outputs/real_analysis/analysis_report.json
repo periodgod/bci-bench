@@ -1,0 +1,176 @@
+{
+  "generated_utc": "2026-07-01T00:04:46.202859+00:00",
+  "dataset": {
+    "shape": [
+      81,
+      3,
+      1000
+    ],
+    "sampling_rate_hz": 250,
+    "channels": [
+      "C3",
+      "Cz",
+      "C4"
+    ],
+    "label_names": [
+      "backward",
+      "down",
+      "forward",
+      "left",
+      "left_hand_mi",
+      "right",
+      "right_hand_mi",
+      "up"
+    ],
+    "label_counts": {
+      "backward": 10,
+      "right": 4,
+      "up": 5,
+      "down": 4,
+      "forward": 11,
+      "left": 1,
+      "left_hand_mi": 23,
+      "right_hand_mi": 23
+    },
+    "source_files": [
+      "E:\\世界机器人大赛\\projects\\arm_bci_robot\\data\\recordings\\2026-06-25\\20-56-30_session.npz",
+      "E:\\世界机器人大赛\\projects\\arm_bci_robot\\data\\recordings\\2026-06-25\\21-00-37_session.npz",
+      "E:\\世界机器人大赛\\projects\\arm_bci_robot\\data\\recordings\\2026-06-25\\21-02-39_session.npz",
+      "E:\\世界机器人大赛\\projects\\arm_bci_robot\\data\\recordings\\2026-06-25\\21-22-30_session.npz",
+      "E:\\世界机器人大赛\\projects\\arm_bci_robot\\data\\recordings\\2026-06-25\\21-46-57_session.npz",
+      "E:\\世界机器人大赛\\projects\\arm_bci_robot\\data\\recordings\\2026-06-25\\22-06-49_session.npz"
+    ],
+    "source_trial_counts": [
+      13,
+      3,
+      8,
+      11,
+      40,
+      6
+    ]
+  },
+  "quality": {
+    "shape": [
+      81,
+      3,
+      1000
+    ],
+    "sampling_rate_hz": 250,
+    "label_counts": {
+      "0": 10,
+      "5": 4,
+      "7": 5,
+      "1": 4,
+      "2": 11,
+      "3": 1,
+      "4": 23,
+      "6": 23
+    },
+    "label_names": [
+      "backward",
+      "down",
+      "forward",
+      "left",
+      "left_hand_mi",
+      "right",
+      "right_hand_mi",
+      "up"
+    ],
+    "channels": [
+      "C3",
+      "Cz",
+      "C4"
+    ],
+    "amplitude": {
+      "mean": 4671.10791015625,
+      "std": 3661.237060546875,
+      "abs_p95": 9274.3330078125,
+      "abs_p99": 10166.7470703125
+    },
+    "channel_variance": {
+      "min": 1114781.875,
+      "median": 3389480.75,
+      "max": 5314780.0
+    },
+    "band_names": [
+      "delta",
+      "theta",
+      "mu",
+      "low_beta",
+      "high_beta",
+      "gamma_low"
+    ],
+    "class_mean_bandpower": {
+      "backward": [
+        9.164514541625977,
+        5.158111095428467,
+        2.9361908435821533,
+        6.562863349914551,
+        11.998139381408691,
+        12.276968955993652
+      ],
+      "down": [
+        8.734785079956055,
+        3.8683555126190186,
+        1.910556674003601,
+        2.3979077339172363,
+        1.512107491493225,
+        1.695286750793457
+      ],
+      "forward": [
+        11.463027954101562,
+        4.735579967498779,
+        2.138547420501709,
+        2.786001443862915,
+        1.52707040309906,
+        1.631748080253601
+      ],
+      "left": [
+        8.63905143737793,
+        5.374706745147705,
+        2.3746066093444824,
+        2.7278223037719727,
+        2.411013126373291,
+        3.8910815715789795
+      ],
+      "left_hand_mi": [
+        6.623759746551514,
+        3.9704673290252686,
+        2.6072800159454346,
+        3.1333627700805664,
+        2.080923318862915,
+        2.992643117904663
+      ],
+      "right": [
+        13.462570190429688,
+        5.22152853012085,
+        2.1145763397216797,
+        3.5509793758392334,
+        3.110337257385254,
+        3.0351693630218506
+      ],
+      "right_hand_mi": [
+        5.979578971862793,
+        4.370946884155273,
+        2.636343240737915,
+        2.8738958835601807,
+        2.0220072269439697,
+        2.5300965309143066
+      ],
+      "up": [
+        6.035552501678467,
+        3.730468511581421,
+        2.557495355606079,
+        3.5568325519561768,
+        2.8614883422851562,
+        3.7609050273895264
+      ]
+    }
+  },
+  "plots": {
+    "label_distribution": "E:\\世界机器人大赛\\wyu-bci-bench\\outputs\\real_analysis\\label_distribution.svg",
+    "psd": "E:\\世界机器人大赛\\wyu-bci-bench\\outputs\\real_analysis\\psd.svg",
+    "band_energy_heatmap": "E:\\世界机器人大赛\\wyu-bci-bench\\outputs\\real_analysis\\band_energy_heatmap.svg",
+    "mu_class_difference_topomap": "E:\\世界机器人大赛\\wyu-bci-bench\\outputs\\real_analysis\\mu_class_difference_topomap.svg"
+  }
+}
