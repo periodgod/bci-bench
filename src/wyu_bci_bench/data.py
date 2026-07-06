@@ -66,13 +66,14 @@ class EEGDataset:
     label_names: list[str]
     paths: list[Path]
     source_trial_counts: list[int]
+    metadata: dict[str, object] = field(default_factory=dict)
 
     @property
     def shape(self) -> tuple[int, int, int]:
         return tuple(int(v) for v in self.eeg.shape)
 
     def summary(self) -> dict[str, object]:
-        return {
+        payload = {
             "shape": list(self.shape),
             "sampling_rate_hz": int(self.fs),
             "channels": list(self.channel_names),
@@ -81,6 +82,9 @@ class EEGDataset:
             "source_files": [str(path) for path in self.paths],
             "source_trial_counts": [int(v) for v in self.source_trial_counts],
         }
+        if self.metadata:
+            payload["metadata"] = self.metadata
+        return payload
 
 
 def _decode_item(value: object) -> str:

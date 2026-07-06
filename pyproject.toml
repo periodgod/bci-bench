@@ -13,8 +13,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+signal = ["scipy>=1.10"]
 ml = ["torch>=2.0"]
-dev = ["pytest>=7.0"]
+xgb = ["xgboost>=2.0"]
+all = ["scipy>=1.10", "torch>=2.0", "xgboost>=2.0"]
+dev = ["pytest>=7.0", "scipy>=1.10"]
 
 [project.scripts]
 wyu-bci-bench = "wyu_bci_bench.cli:main"

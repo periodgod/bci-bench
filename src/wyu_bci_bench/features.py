@@ -72,15 +72,19 @@ def log_bandpower_features(
     fs: float,
     bands: Sequence[tuple[float, float]] = MI_FILTERBANK_BANDS,
     car: bool = True,
+    channel_names: Sequence[str] | None = None,
 ) -> tuple[np.ndarray, list[str]]:
     x = common_average_reference(eeg) if car else ensure_3d_epochs(eeg)
+    names_for_channels = list(channel_names) if channel_names is not None else [str(idx) for idx in range(x.shape[1])]
+    if len(names_for_channels) != x.shape[1]:
+        names_for_channels = [str(idx) for idx in range(x.shape[1])]
     parts: list[np.ndarray] = []
     names: list[str] = []
     for low, high in bands:
         filtered = bandpass_fft(x, fs, low, high)
         variance = np.var(filtered, axis=-1)
         parts.append(np.log(np.maximum(variance, 1e-12)).astype(np.float32))
-        names.extend([f"{low:g}-{high:g}Hz:{idx}" for idx in range(filtered.shape[1])])
+        names.extend([f"{low:g}-{high:g}Hz:{name}" for name in names_for_channels])
     return np.concatenate(parts, axis=1).astype(np.float32), names
 
 
