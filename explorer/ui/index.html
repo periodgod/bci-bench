@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WYU-BCI Bench Explorer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <button class="menu" type="button" data-menu="1" aria-label="打开导航">
+    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 4.5h14M2 9h14M2 13.5h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+  </button>
+  <aside>
+    <div class="brand"><b>WYU-BCI Bench</b><small id="brandMeta">加载中…</small></div>
+    <div class="searchbox">
+      <input class="search" id="search" type="search" placeholder="搜索模块、函数、类、标签" aria-label="搜索" aria-keyshortcuts="/">
+      <kbd aria-hidden="true">/</kbd>
+    </div>
+    <nav id="nav" aria-label="视图"></nav>
+    <div class="side-sec" id="layerHead">线路（功能分层）</div>
+    <nav id="layerNav" aria-labelledby="layerHead"></nav>
+    <div class="side-foot">
+      <button class="stamp none" id="stamp" type="button" data-view="tests">读取核验记录…</button>
+      <div id="footMeta"></div>
+      <button id="rescan" type="button">重新扫描源码</button>
+    </div>
+  </aside>
+  <main id="main" tabindex="-1"><div class="empty">正在读取 bench 源码…</div></main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>

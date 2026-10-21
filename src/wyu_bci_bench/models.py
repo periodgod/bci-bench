@@ -1,4 +1,9 @@
-"""Classical benchmark models."""
+"""无需深度学习框架的经典分类器和 FBCSP 风格基线。
+
+输入特征矩阵形状为 ``(样本数, 特征数)``；每个分类器会在 ``fit`` 时估计标准化
+参数，并在 ``predict`` 时复用。不要在完整数据上提前标准化后再交叉验证，否则
+测试折的均值和方差会进入训练流程。
+"""
 
 from __future__ import annotations
 
@@ -12,6 +17,7 @@ from .signal import MI_FILTERBANK_BANDS
 
 
 def _standardize_fit(x: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """在当前训练数据上逐特征估计均值/标准差，并返回标准化结果和参数。"""
     features = np.asarray(x, dtype=np.float32)
     center = np.mean(features, axis=0)
     scale = np.maximum(np.std(features, axis=0), 1e-6)
@@ -19,11 +25,12 @@ def _standardize_fit(x: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]
 
 
 def _standardize_apply(x: np.ndarray, center: np.ndarray, scale: np.ndarray) -> np.ndarray:
+    """使用训练阶段保存的均值和标准差转换新特征，不重新估计统计量。"""
     return ((np.asarray(x, dtype=np.float32) - center) / np.maximum(scale, 1e-6)).astype(np.float32)
 
 
 class NearestCentroidClassifier:
-    """Standardized nearest-class-centroid classifier."""
+    """按标准化欧氏距离将样本分给最近类别均值的分类器。"""
 
     def __init__(self) -> None:
         self.classes_: np.ndarray | None = None
@@ -32,6 +39,7 @@ class NearestCentroidClassifier:
         self.centroids_: np.ndarray | None = None
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> "NearestCentroidClassifier":
+        """估计训练折标准化参数和每类中心。"""
         z, center, scale = _standardize_fit(x)
         labels = np.asarray(y, dtype=np.int64)
         classes = np.unique(labels)
@@ -42,6 +50,7 @@ class NearestCentroidClassifier:
         return self
 
     def predict(self, x: np.ndarray) -> np.ndarray:
+        """返回离每个样本最近的类别中心对应的标签。"""
         if self.classes_ is None or self.center_ is None or self.scale_ is None or self.centroids_ is None:
             raise RuntimeError("Model is not fitted")
         z = _standardize_apply(x, self.center_, self.scale_)
@@ -50,7 +59,11 @@ class NearestCentroidClassifier:
 
 
 class DiagonalGaussianNB:
-    """Gaussian naive Bayes with per-class diagonal variance."""
+    """假设特征在给定类别下服从独立高斯分布的朴素贝叶斯分类器。
+
+    对角方差忽略特征间协方差，参数少，适合小样本基线；方差下限避免常量特征
+    造成除零或极端似然。
+    """
 
     def __init__(self, variance_floor: float = 1e-3) -> None:
         self.variance_floor = float(variance_floor)
@@ -62,6 +75,7 @@ class DiagonalGaussianNB:
         self.log_priors_: np.ndarray | None = None
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> "DiagonalGaussianNB":
+        """拟合标准化参数、各类各特征高斯分布和经验类别先验。"""
         z, center, scale = _standardize_fit(x)
         labels = np.asarray(y, dtype=np.int64)
         classes = np.unique(labels)
@@ -82,6 +96,7 @@ class DiagonalGaussianNB:
         return self
 
     def predict(self, x: np.ndarray) -> np.ndarray:
+        """计算各类对数似然加先验，返回得分最大的类别。"""
         if self.classes_ is None or self.center_ is None or self.scale_ is None:
             raise RuntimeError("Model is not fitted")
         assert self.means_ is not None
@@ -96,7 +111,7 @@ class DiagonalGaussianNB:
 
 
 class KNearestNeighborsClassifier:
-    """Small-data KNN classifier with deterministic tie breaking."""
+    """基于标准化欧氏距离的 KNN；平票时按平均距离和类别顺序确定结果。"""
 
     def __init__(self, k: int = 3) -> None:
         self.k = int(k)
@@ -106,6 +121,7 @@ class KNearestNeighborsClassifier:
         self.train_y_: np.ndarray | None = None
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> "KNearestNeighborsClassifier":
+        """保存训练样本及只由训练样本估计的标准化参数。"""
         z, center, scale = _standardize_fit(x)
         self.center_ = center
         self.scale_ = scale
@@ -114,6 +130,7 @@ class KNearestNeighborsClassifier:
         return self
 
     def predict(self, x: np.ndarray) -> np.ndarray:
+        """对每个新样本投票；邻居数会限制在 1 到训练样本数之间。"""
         if self.center_ is None or self.scale_ is None or self.train_x_ is None or self.train_y_ is None:
             raise RuntimeError("Model is not fitted")
         z = _standardize_apply(x, self.center_, self.scale_)
@@ -137,7 +154,11 @@ class KNearestNeighborsClassifier:
 
 
 class StandardizedDiagonalLDA:
-    """Shared diagonal-covariance LDA with no native linear algebra dependency."""
+    """共享对角协方差 LDA，用 NumPy 显式计算判别分数。
+
+    LDA 假设各类具有相同协方差；此实现进一步只保留每个特征的方差，忽略协方差
+    项。标准化、类均值、合并方差和类别先验都仅由 fit 收到的数据估计。
+    """
 
     def __init__(self, variance_floor: float = 1e-5):
         self.variance_floor = float(variance_floor)
@@ -149,6 +170,7 @@ class StandardizedDiagonalLDA:
         self.log_priors_: np.ndarray | None = None
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> "StandardizedDiagonalLDA":
+        """拟合训练折统计量；至少需要两个类别。"""
         features = np.asarray(x, dtype=np.float32)
         labels = np.asarray(y, dtype=np.int64)
         classes = np.unique(labels)
@@ -176,6 +198,7 @@ class StandardizedDiagonalLDA:
         return self
 
     def decision_function(self, x: np.ndarray) -> np.ndarray:
+        """返回形状 ``(N,K)`` 的未归一化类别判别分数。"""
         if self.classes_ is None or self.center_ is None or self.scale_ is None:
             raise RuntimeError("Model is not fitted")
         assert self.means_ is not None
@@ -189,11 +212,13 @@ class StandardizedDiagonalLDA:
         return np.stack(scores, axis=1).astype(np.float32)
 
     def predict(self, x: np.ndarray) -> np.ndarray:
+        """取判别分数最大类别作为硬预测。"""
         scores = self.decision_function(x)
         assert self.classes_ is not None
         return self.classes_[np.argmax(scores, axis=1)].astype(np.int64)
 
     def predict_proba(self, x: np.ndarray) -> np.ndarray:
+        """对判别分数做稳定 softmax，得到每行和为 1 的类别概率。"""
         scores = self.decision_function(x)
         scores = scores - np.max(scores, axis=1, keepdims=True)
         exp = np.exp(scores)
@@ -202,7 +227,7 @@ class StandardizedDiagonalLDA:
 
 @dataclass
 class FilterBankLDAModel:
-    """Stable FBCSP-style baseline: filter-bank spatial log-variance + diagonal LDA."""
+    """FBCSP 风格基线：频带空间对数方差、训练折 Fisher 选特征和对角 LDA。"""
 
     bands: Sequence[tuple[float, float]] = MI_FILTERBANK_BANDS
     top_k: int | None = 48
@@ -220,6 +245,7 @@ class FilterBankLDAModel:
         fs: int,
         channel_names: Sequence[str],
     ) -> "FilterBankLDAModel":
+        """从 EEG 训练数据提取特征、折内选列并拟合分类器。"""
         features, names = filterbank_spatial_logvar_features(
             eeg,
             fs,
@@ -236,6 +262,7 @@ class FilterBankLDAModel:
         return self
 
     def transform(self, eeg: np.ndarray) -> np.ndarray:
+        """使用拟合时相同的频带/通道合同和所选列转换新 EEG。"""
         if self.selected_indices_ is None or self.fs_ is None or self.channel_names_ is None:
             raise RuntimeError("Model is not fitted")
         features, _ = filterbank_spatial_logvar_features(
@@ -248,7 +275,9 @@ class FilterBankLDAModel:
         return features[:, self.selected_indices_]
 
     def predict(self, eeg: np.ndarray) -> np.ndarray:
+        """对原始 EEG 输入返回整数类别预测。"""
         return self.classifier.predict(self.transform(eeg))
 
     def predict_proba(self, eeg: np.ndarray) -> np.ndarray:
+        """对原始 EEG 输入返回类别概率。"""
         return self.classifier.predict_proba(self.transform(eeg))

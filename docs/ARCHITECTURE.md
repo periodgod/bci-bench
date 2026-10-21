@@ -30,23 +30,35 @@
    - 提供 EEG 协方差矩阵、Riemannian mean、MDM、Tangent Space + LDA 和 Filter-bank Tangent Space 模型。
    - 面向小样本 MI/ME 数据，作为 simple/FBCSP 与 EEGNet 之间的稳健机器学习路线。
 
-7. `minirocket`
+7. `ssvep` / `erp`
+   - `ssvep` 提供参考波 CCA、滤波器组 CCA 和训练折内 TRCA。
+   - `erp` 提供已切 epoch 的 xDAWN 空间滤波 + 收缩 LDA；不负责从连续采集中检测事件。
+
+8. `adaptation`
+   - 提供无标签 Euclidean Alignment 和 CORAL。
+   - 用评估域输入估计对齐统计量属于传导式测试时适配，必须在实验协议中显式声明。
+
+9. `minirocket`
    - 提供 MiniRocket 风格固定零和卷积核、训练折内 bias 分位数、PPV/max 特征和 diagonal LDA。
    - 面向小样本 EEG 的少训练特征工程路线；不作为原始 sktime MiniRocket 的完全复现。
 
-8. `treeboost`
+10. `treeboost`
    - 提供 XGBoost 在 EEG-aware 特征上的树模型路线。
    - 输入为 split-local 特征：log-bandpower、filter-bank spatial log-variance 和可选 Riemannian tangent-space；不直接把 raw EEG 喂给树模型。
 
-9. `deep`
-   - 提供可选 PyTorch EEGNet。
+11. `deep` / `deep_models` / `nets` / `ssl`
+   - 提供可选 PyTorch EEGNet、Braindecode 常见网络，以及 M1/M2 和自监督表征工具。
    - 未安装 PyTorch 时，其他功能不受影响。
 
-10. `capsule`
+12. `capsule`
    - 提供轻量 EEG CapsuleNet voter，用于 `vote-capsule` 投票版本。
    - 该模型作为投票成员，不默认替代小样本机器学习主线。
 
-11. `evaluate` / `viz` / `cli`
+13. `foundation` / `readout`
+   - 提供 CBraMod 与 EEGPT 的已核验结构输入适配、微调控制和冻结特征线性读出。
+   - EEGPT 要求调用方显式提供数据集幅值乘数；LaBraM 仍在合同审计前拒绝适配调用。
+
+14. `evaluate` / `viz` / `cli`
    - 统一交叉验证、质量报告、画图和命令行入口。
    - 评估输出 JSON，包含混淆矩阵、balanced accuracy、macro F1 和每类召回率。
    - 支持 `vote-simple` hard voting、`vote-ml-best` 最佳经典机器学习 hard voting、`vote-ml-pruned` 去弱模型 hard voting、`vote-ml-pruned-capsule` 剪枝机器学习 + CapsuleNet hard voting、`vote-capsule` 机器学习 + CapsuleNet hard voting。

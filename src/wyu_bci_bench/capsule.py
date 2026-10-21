@@ -1,4 +1,8 @@
-"""Lightweight capsule-network voter for EEG epochs."""
+"""供集成投票基准使用的轻量胶囊网络。
+
+输入 EEG 先按 deep.py 约定切成试次窗口；输出窗口类别分数，再平均回原试次。
+网络结构和训练作为可选基线，PyTorch 在调用时才加载。
+"""
 
 from __future__ import annotations
 
@@ -22,12 +26,14 @@ def _torch() -> Any:
 
 
 def _squash(x: Any, dim: int = -1, eps: float = 1e-8) -> Any:
+    """胶囊 squash 非线性：压缩向量长度至 (0,1)，同时保留方向。"""
     squared_norm = (x * x).sum(dim=dim, keepdim=True)
     scale = squared_norm / (1.0 + squared_norm)
     return scale * x / (squared_norm.sqrt() + eps)
 
 
 def _make_capsule_class(nn: Any, torch: Any) -> type:
+    """在运行时绑定已导入的 torch 类型并创建胶囊网络类。"""
     class DigitCaps(nn.Module):
         def __init__(self, input_caps: int, input_dim: int, classes: int, output_dim: int = 12, routing: int = 3):
             super().__init__()
@@ -95,6 +101,7 @@ def fit_predict_capsule_net(
     max_epochs: int = 20,
     patience: int = 5,
 ) -> tuple[np.ndarray, dict[str, float]]:
+    """训练胶囊分类器并依据训练折内部验证集早停，返回试次级硬预测。"""
     torch, nn, DataLoader, TensorDataset = _torch()
     set_seed(seed)
     torch.set_num_threads(max(1, min(4, os.cpu_count() or 1)))

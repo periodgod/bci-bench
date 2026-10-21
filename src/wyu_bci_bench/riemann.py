@@ -1,4 +1,8 @@
-"""Riemannian covariance classifiers for small-sample EEG."""
+"""基于对称正定协方差矩阵的 Riemannian EEG 分类器和切空间特征。
+
+协方差矩阵位于正定矩阵流形上；这里用特征分解定义矩阵幂、对数和指数，再构造
+黎曼均值、距离与切空间。协方差收缩改善小样本数值稳定性；参考均值只可用训练折估计。
+"""
 
 from __future__ import annotations
 
@@ -23,21 +27,25 @@ def _mm(first: np.ndarray, second: np.ndarray) -> np.ndarray:
 
 
 def _eigh_spd(matrix: np.ndarray, eps: float = 1e-8) -> tuple[np.ndarray, np.ndarray]:
+    """对称化后特征分解，将过小特征值截到 eps 以保持数值正定。"""
     values, vectors = spla.eigh(_sym(matrix), check_finite=False)
     return np.maximum(values, eps), vectors
 
 
 def spd_power(matrix: np.ndarray, power: float, eps: float = 1e-8) -> np.ndarray:
+    """通过特征值幂计算 SPD 矩阵实数次幂。"""
     values, vectors = _eigh_spd(matrix, eps=eps)
     return _sym(_mm(vectors * (values**power).reshape((1, -1)), vectors.T))
 
 
 def spd_log(matrix: np.ndarray, eps: float = 1e-8) -> np.ndarray:
+    """通过特征值对数计算 SPD 矩阵对数。"""
     values, vectors = _eigh_spd(matrix, eps=eps)
     return _sym(_mm(vectors * np.log(values).reshape((1, -1)), vectors.T))
 
 
 def spd_exp(matrix: np.ndarray) -> np.ndarray:
+    """通过特征值指数计算对称矩阵指数。"""
     values, vectors = spla.eigh(_sym(matrix), check_finite=False)
     return _sym(_mm(vectors * np.exp(values).reshape((1, -1)), vectors.T))
 
@@ -50,7 +58,7 @@ def covariance_matrices(
     trace_normalize: bool = True,
     car: bool = True,
 ) -> np.ndarray:
-    """Estimate per-trial SPD covariance matrices with light shrinkage."""
+    """为每个试次估计 SPD 协方差，可先 CAR/带通并向单位阵轻度收缩。"""
     x = common_average_reference(eeg) if car else ensure_3d_epochs(eeg)
     if band is not None:
         x = bandpass_fft(x, fs, band[0], band[1])
@@ -72,6 +80,7 @@ def covariance_matrices(
 
 
 def riemannian_distance(first: np.ndarray, second: np.ndarray, eps: float = 1e-8) -> float:
+    """计算仿射不变黎曼距离，即白化后协方差特征值对数的二范数。"""
     invsqrt = spd_power(first, -0.5, eps=eps)
     whitened = _mm(_mm(invsqrt, _sym(second)), invsqrt)
     values, _ = _eigh_spd(whitened, eps=eps)
@@ -84,6 +93,7 @@ def riemannian_mean(
     tolerance: float = 1e-6,
     eps: float = 1e-8,
 ) -> np.ndarray:
+    """迭代计算 SPD 矩阵黎曼均值，直到更新量小于容差或达到迭代上限。"""
     covs = np.asarray(covariances, dtype=np.float64)
     if covs.ndim != 3 or covs.shape[0] == 0:
         raise ValueError("covariances must have shape (trials, channels, channels)")
@@ -101,6 +111,7 @@ def riemannian_mean(
 
 
 def tangent_space(covariances: np.ndarray, reference: np.ndarray, eps: float = 1e-8) -> np.ndarray:
+    """将协方差白化到参考点、取矩阵对数并向量化上三角。"""
     covs = np.asarray(covariances, dtype=np.float64)
     channels = int(covs.shape[1])
     invsqrt = spd_power(reference, -0.5, eps=eps)
@@ -125,7 +136,7 @@ def tangent_feature_names(channel_names: Sequence[str], prefix: str = "") -> lis
 
 @dataclass
 class RiemannianMDMClassifier:
-    """Minimum-distance-to-Riemannian-mean classifier."""
+    """MDM：将试次分给协方差黎曼均值最近的类别。"""
 
     band: tuple[float, float] = (8.0, 30.0)
     shrinkage: float = 0.1
@@ -155,7 +166,7 @@ class RiemannianMDMClassifier:
 
 @dataclass
 class FilterBankMDMClassifier:
-    """Filter-bank MDM: sum Riemannian distances across MI sub-bands."""
+    """滤波器组 MDM：对多个运动想象子频带的平方黎曼距离求和后分类。"""
 
     bands: Sequence[tuple[float, float]] = MI_FILTERBANK_BANDS
     shrinkage: float = 0.1
@@ -191,7 +202,7 @@ class FilterBankMDMClassifier:
 
 @dataclass
 class TangentSpaceLDAModel:
-    """Single-band Riemannian tangent-space features with diagonal LDA."""
+    """单频带协方差切空间嵌入后接对角 LDA；参考点由训练数据估计。"""
 
     band: tuple[float, float] = (8.0, 30.0)
     shrinkage: float = 0.1

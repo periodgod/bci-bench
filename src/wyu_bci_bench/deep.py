@@ -1,4 +1,8 @@
-"""Optional PyTorch EEGNet model."""
+"""可选 PyTorch EEGNet 试次级基线和窗口训练工具。
+
+先在每个 trial 内标准化，再切成有重叠的训练窗口；预测阶段把同一 trial 的窗口
+概率平均回 trial 级预测。validation_split 是当前训练折内部划分，不是外层测试集。
+"""
 
 from __future__ import annotations
 
@@ -21,6 +25,7 @@ def _torch() -> Any:
 
 
 def standardize_trials(eeg: np.ndarray) -> np.ndarray:
+    """每个试次、每个通道独立沿时间做标准化。"""
     x = np.asarray(eeg, dtype=np.float32)
     mean = np.mean(x, axis=-1, keepdims=True)
     std = np.std(x, axis=-1, keepdims=True)
@@ -34,6 +39,7 @@ def make_trial_windows(
     window_seconds: float = 2.0,
     step_seconds: float = 0.5,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """把 ``(trial,channel,time)`` 切成有重叠窗口，并返回窗口标签和源试次编号。"""
     x = standardize_trials(eeg)
     y = np.asarray(labels, dtype=np.int64)
     window = min(x.shape[-1], max(32, int(round(float(window_seconds) * int(fs)))))
@@ -104,6 +110,7 @@ def _make_eegnet_class(nn: Any) -> type:
 
 
 def validation_split(y: np.ndarray, seed: int = 42, fraction: float = 0.22) -> tuple[np.ndarray, np.ndarray]:
+    """在当前训练折内部按类别抽出验证试次，不接触外层测试行。"""
     labels = np.asarray(y, dtype=np.int64)
     rng = np.random.default_rng(seed)
     train: list[int] = []
@@ -121,6 +128,7 @@ def validation_split(y: np.ndarray, seed: int = 42, fraction: float = 0.22) -> t
 
 
 def aggregate_trial_predictions(probabilities: np.ndarray, trial_ids: np.ndarray, trial_count: int) -> np.ndarray:
+    """平均每个源试次所有窗口的概率，再映射为 trial 级硬标签。"""
     predictions = []
     for trial_idx in range(trial_count):
         mask = trial_ids == trial_idx
@@ -138,6 +146,7 @@ def fit_predict_eegnet(
     max_epochs: int = 40,
     patience: int = 8,
 ) -> tuple[np.ndarray, dict[str, float]]:
+    """训练 EEGNet，依据内部验证损失早停，并汇总测试窗口到试次级预测。"""
     torch, nn, DataLoader, TensorDataset = _torch()
     set_seed(seed)
     torch.set_num_threads(max(1, min(4, os.cpu_count() or 1)))

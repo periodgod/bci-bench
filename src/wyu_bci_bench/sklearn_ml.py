@@ -1,4 +1,8 @@
-"""Sklearn machine-learning models on EEG-aware feature matrices."""
+"""在 EEG 频带、空间和切空间特征上比较多种 scikit-learn 分类器。
+
+特征提取、切空间参考矩阵、标签相关特征选择和分类器都在每个训练折拟合；
+predict/transform 复用这些状态。scikit-learn 作为可选依赖在需要时导入。
+"""
 
 from __future__ import annotations
 
@@ -16,6 +20,7 @@ SKLEARN_TANGENT_BANDS = ((8.0, 30.0), (4.0, 40.0))
 
 
 def _make_classifier(name: str, seed: int):
+    """按短名称构造固定超参数的 sklearn 分类器或标准化 Pipeline。"""
     try:
         from sklearn.ensemble import AdaBoostClassifier, ExtraTreesClassifier, HistGradientBoostingClassifier, RandomForestClassifier
         from sklearn.linear_model import LogisticRegression
@@ -99,7 +104,7 @@ def _make_classifier(name: str, seed: int):
 
 @dataclass
 class EEGFeatureSklearnModel:
-    """Sklearn classifier on split-local EEG features and feature selection."""
+    """EEG 特征变换、折内特征选择与 sklearn 分类器的统一包装器。"""
 
     classifier_name: str
     feature_mode: str = "full"  # fixed, tangent, full
@@ -114,6 +119,7 @@ class EEGFeatureSklearnModel:
     references_: list[np.ndarray] = field(default_factory=list)
 
     def _fixed_features(self, eeg: np.ndarray, fs: int, channel_names: Sequence[str]) -> tuple[np.ndarray, list[str]]:
+        """生成频带功率和空间对数方差固定特征。"""
         bandpower, bandpower_names = log_bandpower_features(
             eeg,
             fs,
@@ -131,6 +137,7 @@ class EEGFeatureSklearnModel:
         return np.concatenate([bandpower, spatial], axis=1).astype(np.float32), bandpower_names + spatial_names
 
     def _tangent_features(self, eeg: np.ndarray, fs: int, fit: bool) -> tuple[np.ndarray, list[str]]:
+        """生成 Riemann 切空间特征；仅 fit=True 时估计参考协方差。"""
         if self.channel_names_ is None:
             raise RuntimeError("channel_names_ must be set before tangent features")
         parts: list[np.ndarray] = []
@@ -149,6 +156,7 @@ class EEGFeatureSklearnModel:
         return np.concatenate(parts, axis=1).astype(np.float32), names
 
     def _features(self, eeg: np.ndarray, fs: int, fit: bool) -> tuple[np.ndarray, list[str]]:
+        """按 feature_mode 组合特征来源，并保持列名和数值列严格对齐。"""
         if self.channel_names_ is None:
             raise RuntimeError("Model channel_names_ are not initialized")
         mode = str(self.feature_mode).lower()
@@ -169,6 +177,7 @@ class EEGFeatureSklearnModel:
         fs: int,
         channel_names: Sequence[str],
     ) -> "EEGFeatureSklearnModel":
+        """拟合训练折变换状态、标签相关选列和分类器。"""
         labels = np.asarray(y, dtype=np.int64)
         self.fs_ = int(fs)
         self.channel_names_ = list(channel_names)
@@ -181,12 +190,14 @@ class EEGFeatureSklearnModel:
         return self
 
     def transform(self, eeg: np.ndarray) -> np.ndarray:
+        """使用已保存参考协方差与选列索引转换新 EEG。"""
         if self.fs_ is None or self.selected_indices_ is None:
             raise RuntimeError("Model is not fitted")
         features, _ = self._features(eeg, self.fs_, fit=False)
         return features[:, self.selected_indices_]
 
     def predict(self, eeg: np.ndarray) -> np.ndarray:
+        """输出新 EEG 的整数类别预测。"""
         if self.classifier_ is None:
             raise RuntimeError("Model is not fitted")
         return np.asarray(self.classifier_.predict(self.transform(eeg)), dtype=np.int64)

@@ -1,4 +1,9 @@
-"""Command line interface for WYU BCI Bench."""
+"""WYU BCI Bench 命令行入口。
+
+``scan`` 清点 NPZ，``analyze`` 生成单段数据质量/图表报告，``bench`` 运行试次级
+交叉验证，``oof-score``/``oof-compare`` 处理已保存的分组 OOF 概率。命令行负责
+参数解析与编排，信号、协议和指标定义放在各自模块中。
+"""
 
 from __future__ import annotations
 
@@ -44,6 +49,7 @@ LABEL_MODE_CHOICES = [
 
 
 def configure_stdio() -> None:
+    """尽可能将 Windows 控制台标准输出设为 UTF-8，避免中文报告乱码。"""
     for stream in (sys.stdout, sys.stderr):
         reconfigure = getattr(stream, "reconfigure", None)
         if callable(reconfigure):
@@ -54,11 +60,13 @@ def configure_stdio() -> None:
 
 
 def _write_json(path: Path, payload: dict) -> None:
+    """创建父目录并以 UTF-8 写入可读 JSON。"""
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """声明命令及参数；这里只解析配置，不执行数据加载或训练。"""
     parser = argparse.ArgumentParser(prog="wyu-bci-bench", description="Offline EEG analysis and benchmark toolkit")
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -117,10 +125,24 @@ def build_parser() -> argparse.ArgumentParser:
     bench.add_argument("--seed", type=int, default=42)
     bench.add_argument("--epochs", type=int, default=30)
     bench.add_argument("--top-k", type=int, default=None, help="Feature count for FBCSP or simple models")
+    add_grouped_commands(sub)
     return parser
 
 
+def add_grouped_commands(sub) -> None:
+    """添加读取分组 OOF 缓存的评分和参与者配对比较命令。"""
+    score = sub.add_parser("oof-score", help="Cell-equal BA for every condition in an OOF npz")
+    score.add_argument("oof", type=Path)
+    score.add_argument("--json", action="store_true")
+    compare = sub.add_parser("oof-compare", help="Paired participant-cluster bootstrap between two conditions")
+    compare.add_argument("left", help="path.npz:condition")
+    compare.add_argument("right", help="path.npz:condition")
+    compare.add_argument("--n-boot", type=int, default=20000)
+    compare.add_argument("--seed", type=int, default=20261019)
+
+
 def _continuous_config(args: argparse.Namespace) -> ContinuousPreprocessConfig:
+    """将 CLI 字符串/开关规范化为连续信号加载器的配置对象。"""
     bad_channels = tuple(name.strip() for name in str(args.bad_channels).split(",") if name.strip())
     mode = "manual" if bad_channels and args.bad_channel_mode == "manual" else args.bad_channel_mode
     return ContinuousPreprocessConfig(
@@ -134,6 +156,7 @@ def _continuous_config(args: argparse.Namespace) -> ContinuousPreprocessConfig:
 
 
 def _load_dataset_from_args(args: argparse.Namespace):
+    """根据输入格式选择连续 raw_stream 或已切分 NPZ 的加载路径。"""
     if getattr(args, "continuous_raw", False):
         return load_continuous_dataset(
             args.recordings,
@@ -145,6 +168,7 @@ def _load_dataset_from_args(args: argparse.Namespace):
 
 
 def cmd_scan(args: argparse.Namespace) -> int:
+    """扫描 NPZ 并打印摘要；可选把结果写入 JSON 文件。"""
     files = scan_recordings(args.recordings)
     print(f"Found {len(files)} NPZ recordings")
     for item in summarize_recordings(args.recordings):
@@ -159,6 +183,7 @@ def cmd_scan(args: argparse.Namespace) -> int:
 
 
 def cmd_analyze(args: argparse.Namespace) -> int:
+    """生成数据质量 JSON 与频谱/标签图，不训练预测模型。"""
     dataset = _load_dataset_from_args(args)
     out = args.out
     out.mkdir(parents=True, exist_ok=True)
@@ -183,6 +208,7 @@ def cmd_analyze(args: argparse.Namespace) -> int:
 
 
 def cmd_bench(args: argparse.Namespace) -> int:
+    """按选择的模型运行试次级交叉验证并写入结果报告。"""
     dataset = _load_dataset_from_args(args)
     out = args.out
     out.mkdir(parents=True, exist_ok=True)
@@ -339,10 +365,57 @@ def cmd_bench(args: argparse.Namespace) -> int:
     return 0
 
 
+def _split_ref(ref: str) -> tuple[Path, str]:
+    """解析 ``文件路径:条件名``，从右侧切分以允许路径自身含冒号。"""
+    path, _, name = ref.rpartition(":")
+    if not path or not name:
+        raise SystemExit(f"expected path.npz:condition, got {ref!r}")
+    return Path(path), name
+
+
+def cmd_oof_score(args: argparse.Namespace) -> int:
+    """用 OOF 文件保存的分组元信息重新计算各预测条件的分数。"""
+    from .registry import load_oof
+
+    oof = load_oof(args.oof)
+    rows = {}
+    for name in sorted(oof.probs):
+        s = oof.summary(name)
+        p = oof.probs[name]
+        rows[name] = {"cell_ba": s["cell_ba"], "subject_ba": s["subject_ba"], "seeds": int(p.shape[0]) if p.ndim == 3 else 1}
+    if args.json:
+        print(json.dumps(rows, ensure_ascii=False, indent=2))
+    else:
+        for name, r in rows.items():
+            print(f"{name:40s} cell_ba={r['cell_ba']:.4f} subject_ba={r['subject_ba']:.4f} seeds={r['seeds']}")
+    return 0
+
+
+def cmd_oof_compare(args: argparse.Namespace) -> int:
+    """在同一参与者集合上执行配对参与者 bootstrap 比较。"""
+    import numpy as np
+
+    from .metrics import paired_subject_bootstrap
+    from .registry import load_oof
+
+    (lp, ln), (rp, rn) = _split_ref(args.left), _split_ref(args.right)
+    left, right = load_oof(lp), load_oof(rp)
+    if not all(np.array_equal(a, b) for a, b in zip((left.y, *left.meta), (right.y, *right.meta))):
+        raise SystemExit("the two OOF files do not share the same rows")
+    print(json.dumps(paired_subject_bootstrap(left.summary(ln), right.summary(rn), args.n_boot, args.seed),
+                     ensure_ascii=False, indent=2))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
+    """按解析出的 command 分派到对应 cmd_* 函数并返回进程退出码。"""
     configure_stdio()
     parser = build_parser()
     args = parser.parse_args(argv)
+    if args.command == "oof-score":
+        return cmd_oof_score(args)
+    if args.command == "oof-compare":
+        return cmd_oof_compare(args)
     if args.command == "scan":
         return cmd_scan(args)
     if args.command == "analyze":

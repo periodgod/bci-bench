@@ -1,10 +1,13 @@
-"""Continuous raw-stream loaders and preprocessing for local BCI recordings.
+"""本地连续 raw_stream 脑机接口记录的读取、质控、预处理和 epoch 切片。
 
 This module is for recordings that store a continuous ``raw_stream`` plus JSON
 trial timing records, such as the arm_bci_robot MI/ME sessions. Each file is
 treated as a separate acquisition segment: filtering and epoching never cross
 recording boundaries.
 """
+
+# 与 data.py 中已保存成单试次数组的 NPZ 不同，本模块从连续采样流和试次时间记录
+# 重建 epoch。每个文件独立滤波和切片，禁止跨采集文件边界滤波。
 
 from __future__ import annotations
 
@@ -48,6 +51,11 @@ MI_ME_LABEL_MODES = {
 
 @dataclass(frozen=True)
 class ContinuousPreprocessConfig:
+    """连续记录预处理合同，字段会写入 EEGDataset.metadata 供追溯。
+
+    baseline_mode 决定基线区间，task_offset_s 决定事件后截取起点，bad_channel_mode
+    决定通道质控策略。更改这些参数会改变训练输入，应作为实验配置记录。
+    """
     eeg_channels: int = 32
     bandpass_low: float = 4.0
     bandpass_high: float = 40.0
@@ -68,6 +76,7 @@ class ContinuousPreprocessConfig:
 
 @dataclass(frozen=True)
 class RawSegment:
+    """单个原始采集文件中的连续信号、采样率和试次时间记录。"""
     path: Path
     raw: np.ndarray
     fs: int
@@ -131,6 +140,7 @@ def _task_names(data: np.lib.npyio.NpzFile) -> dict[int, str]:
 
 
 def load_raw_segment(path: str | Path, eeg_channels: int = 32) -> RawSegment:
+    """从连续记录 NPZ 解码 raw_stream、采样率、通道名和试次 JSON 元数据。"""
     p = Path(path)
     with np.load(p, allow_pickle=True) as data:
         if "raw_stream" not in data:
@@ -148,6 +158,7 @@ def load_raw_segment(path: str | Path, eeg_channels: int = 32) -> RawSegment:
 
 
 def scan_raw_segments(paths: str | Path | Iterable[str | Path], count_latest: int | None = None) -> list[Path]:
+    """寻找有效连续流文件；可选只保留按修改时间排序的最近 N 个文件。"""
     files = scan_recordings(paths)
     valid = []
     for path in files:
@@ -164,12 +175,18 @@ def scan_raw_segments(paths: str | Path | Iterable[str | Path], count_latest: in
 
 
 def _robust_std(x: np.ndarray) -> np.ndarray:
+    """用 1.4826 × MAD 估计抗离群值标准差。"""
     median = np.median(x, axis=0, keepdims=True)
     mad = np.median(np.abs(x - median), axis=0)
     return (1.4826 * mad).astype(np.float64)
 
 
 def compute_channel_qc(segments: Sequence[RawSegment]) -> dict[str, Any]:
+    """跨文件计算每通道有限值比例、稳健幅度及异常标记。
+
+    auto/strict 阈值是项目当前质控规则，不是临床或普适坏导判据。函数返回逐文件
+    指标与跨文件摘要供复核；具体剔除由 select_qc_channels 决定。
+    """
     if not segments:
         raise ValueError("No segments for channel QC")
     channel_names = list(segments[0].channel_names)
@@ -276,6 +293,7 @@ def compute_channel_qc(segments: Sequence[RawSegment]) -> dict[str, Any]:
 
 
 def select_qc_channels(qc: dict[str, Any], mode: str = "auto", manual_bad: Sequence[str] = ()) -> tuple[np.ndarray, list[str], list[str]]:
+    """根据关闭、人工、auto 或 strict 策略返回保留索引及通道名称。"""
     names = [str(item) for item in qc["channel_names"]]
     mode_key = str(mode).lower()
     if mode_key in {"off", "none"}:
@@ -305,6 +323,7 @@ def _require_scipy_signal():
 
 
 def _reflect_pad(x: np.ndarray, pad_len: int) -> tuple[np.ndarray, int]:
+    """反射扩展时间序列，减少正反向滤波的边界瞬态。"""
     pad_len = int(max(0, min(pad_len, x.shape[0] - 1)))
     if pad_len <= 0:
         return x, 0
@@ -314,6 +333,7 @@ def _reflect_pad(x: np.ndarray, pad_len: int) -> tuple[np.ndarray, int]:
 
 
 def _sos_zero_phase_filter(x: np.ndarray, sos: np.ndarray) -> np.ndarray:
+    """二阶节形式先正向再反向滤波以抵消相位延迟，并裁去临时 padding。"""
     signal = _require_scipy_signal()
     pad_len = 3 * (2 * len(sos) + 1)
     padded, actual_pad = _reflect_pad(x, pad_len)
@@ -325,6 +345,7 @@ def _sos_zero_phase_filter(x: np.ndarray, sos: np.ndarray) -> np.ndarray:
 
 
 def _linear_detrend_numpy(x: np.ndarray) -> np.ndarray:
+    """逐通道拟合并去除线性趋势；单点信号退化为去均值。"""
     if x.shape[0] < 2:
         return x - np.mean(x, axis=0, keepdims=True)
     t = np.linspace(-1.0, 1.0, x.shape[0], dtype=np.float64)
@@ -339,6 +360,7 @@ def _linear_detrend_numpy(x: np.ndarray) -> np.ndarray:
 
 
 def preprocess_raw_segment(raw: np.ndarray, fs: int, config: ContinuousPreprocessConfig) -> np.ndarray:
+    """对单文件连续信号去趋势，可选陷波和 Butterworth 零相位带通。"""
     x = _linear_detrend_numpy(np.asarray(raw, dtype=np.float64))
     if not config.apply_filter:
         return x.astype(np.float32)
@@ -362,6 +384,7 @@ def preprocess_raw_segment(raw: np.ndarray, fs: int, config: ContinuousPreproces
 
 
 def _valid_trial_record(rec: dict[str, Any]) -> bool:
+    """排除无类别、标记坏试次或练习试次的时间记录。"""
     cid = int(rec.get("class_id", 0) or 0)
     return bool(cid > 0 and not rec.get("bad_trial") and not rec.get("is_practice"))
 
@@ -372,6 +395,11 @@ def _extract_segment_epochs(
     keep_channels: np.ndarray,
     config: ContinuousPreprocessConfig,
 ) -> tuple[list[np.ndarray], list[int], list[str], list[dict[str, Any]], dict[str, int], dict[str, Any]]:
+    """按单段记录时间切片、做基线处理并汇报剔除原因。
+
+    ``filtered_raw`` 只包含当前文件的处理后数据；调用方逐文件调用，因此 epoch
+    不会跨文件边界。返回值带标签、源记录和对齐诊断，可追溯每个 epoch 的来源。
+    """
     fs = int(segment.fs)
     epochs: list[np.ndarray] = []
     class_ids: list[int] = []
@@ -507,6 +535,7 @@ def _apply_mi_me_label_mode(
     records: list[dict[str, Any]],
     label_mode: str,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, list[str], list[dict[str, Any]], dict[str, Any]]:
+    """将想象/执行 × 身体部位标签折叠成用户指定的监督任务。"""
     mode = _normalize_label_mode(label_mode)
     raw_class_ids = np.asarray(class_ids, dtype=np.int64)
     raw_labels = np.asarray(labels, dtype=object)
@@ -569,6 +598,11 @@ def load_continuous_dataset(
     count_latest: int | None = None,
     label_mode: str = "all",
 ) -> EEGDataset:
+    """端到端读取连续流：文件校验、通道 QC、逐文件预处理/epoch 和标签编码。
+
+    返回数据统一裁成最短 epoch 长度；metadata 保存配置、质控明细、剔除数量和
+    时间对齐信息。不同采样率文件不会自动重采样，遇到不一致会报错。
+    """
     cfg = config or ContinuousPreprocessConfig()
     files = scan_raw_segments(paths, count_latest=count_latest)
     if not files:

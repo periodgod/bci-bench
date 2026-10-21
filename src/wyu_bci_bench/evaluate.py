@@ -1,4 +1,10 @@
-"""Evaluation utilities."""
+"""本地单段 EEG 数据集的交叉验证、经典模型基准和质量摘要。
+
+本模块中的 ``stratified_folds`` 是按试次随机分层，不会隔离参与者或会话，适用于
+同一数据池内的基线比较；若研究问题是跨参与者/跨会话泛化，必须改用
+``splits.py`` 中带组的协议，并使用对应分组指标。所有模型需在每折训练部分重新
+拟合特征标准化、特征选择、参考矩阵或分类器。
+"""
 
 from __future__ import annotations
 
@@ -26,6 +32,11 @@ from .signal import BANDS, bandpower_from_psd, compute_psd
 
 
 def stratified_folds(y: np.ndarray, folds: int = 5, seed: int = 42) -> list[tuple[np.ndarray, np.ndarray]]:
+    """构造确定性的分层试次级折，尽量让每折各类别数量相近。
+
+    有效折数不会超过任一类的样本数；每类至少两个样本才可做交叉验证。注意该
+    函数不知道 subject/session 元信息，因此绝不能用它声称参与者隔离评估。
+    """
     labels = np.asarray(y, dtype=np.int64)
     counts = Counter(int(item) for item in labels)
     if len(counts) < 2:
@@ -52,6 +63,7 @@ def stratified_folds(y: np.ndarray, folds: int = 5, seed: int = 42) -> list[tupl
 
 
 def confusion_matrix(y_true: np.ndarray, y_pred: np.ndarray, classes: Sequence[int]) -> list[list[int]]:
+    """按给定类别顺序累计真实类别为行、预测类别为列的计数矩阵。"""
     lookup = {int(label): idx for idx, label in enumerate(classes)}
     mat = np.zeros((len(classes), len(classes)), dtype=np.int64)
     for truth, pred in zip(y_true, y_pred):
@@ -60,6 +72,7 @@ def confusion_matrix(y_true: np.ndarray, y_pred: np.ndarray, classes: Sequence[i
 
 
 def _macro_f1(y_true: np.ndarray, y_pred: np.ndarray, classes: Sequence[int]) -> float:
+    """分别计算各类别 F1 再等权平均；没有预测正例的类别记 0。"""
     truth = np.asarray(y_true, dtype=np.int64)
     pred = np.asarray(y_pred, dtype=np.int64)
     scores = []
@@ -82,6 +95,7 @@ def metric_summary(
     label_names: Sequence[str] | None = None,
     elapsed: float = 0.0,
 ) -> dict[str, object]:
+    """汇总硬标签预测的 accuracy、macro BA、macro-F1、召回和混淆矩阵。"""
     truth = np.asarray(y_true, dtype=np.int64)
     pred = np.asarray(y_pred, dtype=np.int64)
     classes = sorted(set(int(v) for v in truth) | set(int(v) for v in pred))
@@ -105,6 +119,7 @@ def metric_summary(
 
 
 def _hard_vote(prediction_rows: Sequence[np.ndarray], classes: Sequence[int]) -> np.ndarray:
+    """逐样本多数表决；平票时使用最早 voter 的预测以保证确定性。"""
     if not prediction_rows:
         raise ValueError("At least one prediction row is required for voting")
     stacked = np.stack([np.asarray(row, dtype=np.int64) for row in prediction_rows], axis=1)
@@ -234,7 +249,12 @@ def cross_validate_voting_ensemble(
     capsule_epochs: int = 20,
     voter_set: str = "simple",
 ) -> dict[str, object]:
-    """Evaluate hard-vote ensembles on split-local EEG models."""
+    """逐折拟合若干 EEG 分类器并组合硬标签多数票。
+
+    每个基础分类器只在当前训练折拟合，测试折仅用于预测。输出同时报告集成与各
+    voter 的结果。切分是试次级分层，因此如果同一参与者有多个试次，它们可能跨折；
+    这不是跨参与者泛化结果。
+    """
     labels = np.asarray(y, dtype=np.int64)
     splits = stratified_folds(labels, folds=folds, seed=seed)
     classes = sorted(set(int(v) for v in labels.tolist()))
@@ -335,6 +355,7 @@ def cross_validate_filterbank_lda(
     seed: int = 42,
     top_k: int | None = 48,
 ) -> dict[str, object]:
+    """对 FBCSP 风格 LDA 做分层试次交叉验证，特征选择在每折内完成。"""
     labels = np.asarray(y, dtype=np.int64)
     predictions = np.full(len(labels), -1, dtype=np.int64)
     fold_reports = []
@@ -821,6 +842,7 @@ def cross_validate_eegnet(
     seed: int = 42,
     epochs: int = 30,
 ) -> dict[str, object]:
+    """逐折训练 EEGNet 并汇总折外硬标签预测；仍使用试次级分层切分。"""
     del channel_names
     labels = np.asarray(y, dtype=np.int64)
     predictions = np.full(len(labels), -1, dtype=np.int64)
@@ -861,6 +883,11 @@ def dataset_quality_report(
     channel_names: Sequence[str],
     label_names: Sequence[str] | None = None,
 ) -> dict[str, object]:
+    """计算幅度、通道方差、频带功率和类别分布等数据质量摘要。
+
+    该报告用于发现明显的单位、坏通道或频谱异常，不会自动判定数据可用于某个
+    科学结论，也不会替代原始文件/预处理合同审计。
+    """
     x = np.asarray(eeg, dtype=np.float32)
     freqs, psd = compute_psd(x, fs)
     band_names, powers = bandpower_from_psd(freqs, psd, BANDS)

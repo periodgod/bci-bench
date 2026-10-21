@@ -1,3 +1,18 @@
-*.mat *.npy *.npz *.zip
-__pycache__/ *.pyc .venv/ .idea/ .vscode/ logs/ *.log
-data/ outputs/
+*.mat
+*.npy
+*.npz
+*.zip
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+.idea/
+.vscode/
+logs/
+*.log
+data/
+outputs/
+explorer/.build-venv/
+explorer/build/
+explorer/dist/
+explorer/catalog_snapshot.json

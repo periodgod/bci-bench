@@ -1,4 +1,8 @@
-"""Tree boosting models on EEG-aware feature matrices."""
+"""XGBoost 与 EEG 频带、空间及 Riemann 切空间特征的组合基线。
+
+切空间参考、Fisher 特征筛选和分类器均在当前训练折拟合。XGBoost 是可选依赖，
+本模块在真正构造该模型时才导入它。
+"""
 
 from __future__ import annotations
 
@@ -16,6 +20,7 @@ TANGENT_BANDS = ((8.0, 30.0), (4.0, 40.0))
 
 
 def _xgb_classifier(classes: int, seed: int, depth: int = 2, estimators: int = 80):
+    """构造单线程、固定种子的多分类 XGBoost 概率模型。"""
     try:
         from xgboost import XGBClassifier  # type: ignore
     except Exception as exc:  # pragma: no cover - optional dependency
@@ -41,7 +46,7 @@ def _xgb_classifier(classes: int, seed: int, depth: int = 2, estimators: int = 8
 
 @dataclass
 class EEGFeatureXGBModel:
-    """XGBoost on split-local EEG feature extraction and feature selection."""
+    """折内提取/选择 EEG 特征，再交给 XGBoost 分类的模型包装器。"""
 
     include_tangent: bool = True
     top_k: int | None = 96
@@ -57,6 +62,7 @@ class EEGFeatureXGBModel:
     references_: list[np.ndarray] = field(default_factory=list)
 
     def _fixed_features(self, eeg: np.ndarray, fs: int, channel_names: Sequence[str]) -> tuple[np.ndarray, list[str]]:
+        """生成不依赖样本拟合状态的频带功率与空间方差特征。"""
         bandpower, bandpower_names = log_bandpower_features(
             eeg,
             fs,
@@ -74,6 +80,7 @@ class EEGFeatureXGBModel:
         return np.concatenate([bandpower, spatial], axis=1).astype(np.float32), bandpower_names + spatial_names
 
     def _tangent_features(self, eeg: np.ndarray, fs: int, fit: bool) -> tuple[np.ndarray, list[str]]:
+        """生成切空间特征；fit=True 时只用当前训练折估计参考协方差。"""
         if self.channel_names_ is None:
             raise RuntimeError("channel_names_ must be set before tangent features")
         parts: list[np.ndarray] = []
@@ -92,6 +99,7 @@ class EEGFeatureXGBModel:
         return np.concatenate(parts, axis=1).astype(np.float32), names
 
     def _features(self, eeg: np.ndarray, fs: int, fit: bool) -> tuple[np.ndarray, list[str]]:
+        """拼接固定特征与可选切空间特征，并保持列名同步。"""
         if self.channel_names_ is None:
             raise RuntimeError("Model channel_names_ are not initialized")
         fixed, names = self._fixed_features(eeg, fs, self.channel_names_)
@@ -107,6 +115,7 @@ class EEGFeatureXGBModel:
         fs: int,
         channel_names: Sequence[str],
     ) -> "EEGFeatureXGBModel":
+        """拟合特征变换、训练折选列和 XGBoost 分类器。"""
         labels = np.asarray(y, dtype=np.int64)
         self.fs_ = int(fs)
         self.channel_names_ = list(channel_names)
@@ -120,12 +129,14 @@ class EEGFeatureXGBModel:
         return self
 
     def transform(self, eeg: np.ndarray) -> np.ndarray:
+        """用保存的切空间参考和选列索引转换新 EEG。"""
         if self.fs_ is None or self.selected_indices_ is None:
             raise RuntimeError("Model is not fitted")
         features, _ = self._features(eeg, self.fs_, fit=False)
         return features[:, self.selected_indices_]
 
     def predict(self, eeg: np.ndarray) -> np.ndarray:
+        """输出整数预测，兼容分类器返回标签或二维概率的情况。"""
         if self.classifier_ is None:
             raise RuntimeError("Model is not fitted")
         raw = np.asarray(self.classifier_.predict(self.transform(eeg)))

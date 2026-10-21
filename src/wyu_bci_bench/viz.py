@@ -1,4 +1,8 @@
-"""Dependency-light SVG plots for offline EEG analysis."""
+"""依赖轻量、输出 SVG/图像文件的 EEG 离线分析图表。
+
+图表用于检查标签分布、功率谱、频带能量和头皮空间差异，不承担统计检验或因果解释；
+需结合通道位置、参考方式、采样率和数据协议解读。
+"""
 
 from __future__ import annotations
 
