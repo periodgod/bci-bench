@@ -122,6 +122,19 @@ if nn is not None:
             self.decoder = nn.Sequential(nn.LayerNorm(hidden), nn.Linear(hidden, patch_size))
             nn.init.normal_(self.mask_token, std=0.02)
 
+        def encode_tokens(self, x):
+            """Unmasked tokens using exactly the encoder trained by reconstruction."""
+            if x.ndim != 3 or x.shape[1] != self.n_channels or x.shape[-1] % self.patch_size:
+                raise ValueError("invalid EEG shape for configured MAE encoder")
+            patches = x.unfold(-1, self.patch_size, self.patch_size)
+            batch, channels, count, _ = patches.shape
+            if count < 2 or count > self.max_patches:
+                raise ValueError("patch count must be in [2, max_patches]")
+            tokens = self.patch_projection(patches)
+            tokens = tokens + self.channel_embedding(torch.arange(channels, device=x.device))[None, :, None]
+            tokens = tokens + self.position_embedding(torch.arange(count, device=x.device))[None, None]
+            return self.encoder(tokens.reshape(batch, channels * count, -1)).reshape(batch, channels, count, -1)
+
         def forward(self, x, *, mask_ratio=0.5, generator=None, return_details=False):
             if x.ndim != 3 or x.shape[1] != self.n_channels:
                 raise ValueError("x must have shape (batch, configured channels, samples)")
@@ -136,8 +149,7 @@ if nn is not None:
             tokens = self.patch_projection(patches)
             channel_ids = torch.arange(channels, device=x.device)
             position_ids = torch.arange(count, device=x.device)
-            tokens = tokens + self.channel_embedding(channel_ids)[None, :, None]
-            tokens = tokens + self.position_embedding(position_ids)[None, None]
+            positions = self.channel_embedding(channel_ids)[None, :, None] + self.position_embedding(position_ids)[None, None]
 
             mask_count = min(count - 1, max(1, round(count * mask_ratio)))
             random_order = torch.rand((batch, channels, count), device=x.device,
@@ -145,6 +157,8 @@ if nn is not None:
             mask = torch.zeros((batch, channels, count), device=x.device, dtype=torch.bool)
             mask.scatter_(-1, random_order[..., :mask_count], True)
             tokens = torch.where(mask[..., None], self.mask_token.view(1, 1, 1, -1), tokens)
+            # Mask signal content, retaining the electrode/time identity to reconstruct.
+            tokens = tokens + positions
             encoded = self.encoder(tokens.reshape(batch, channels * count, -1))
             prediction = self.decoder(encoded).reshape(batch, channels, count, width)
             loss = masked_reconstruction_loss(prediction, patches, mask[..., None])
@@ -245,7 +259,7 @@ def cross_channel_contrastive_loss(embedding, temperature: float = 0.2):
 
 def train_masked_autoencoder(model, batches, *, epochs=1, mask_ratio=0.5,
                              learning_rate=1e-3, weight_decay=0.05,
-                             device=None, gradient_clip=1.0):
+                             device=None, gradient_clip=1.0, epoch_callback=None):
     """Train on re-iterable EEG tensor batches; task-label pairs are rejected.
 
     Participant splits must be applied to the pretraining corpus before calling
@@ -281,6 +295,8 @@ def train_masked_autoencoder(model, batches, *, epochs=1, mask_ratio=0.5,
         if not losses:
             raise ValueError("each epoch must contain at least one EEG batch")
         history.append(float(np.mean(losses)))
+        if epoch_callback is not None:
+            epoch_callback(len(history), model.eval())
     return history
 
 

@@ -81,3 +81,75 @@ def extract_features(X_uV: np.ndarray, fs: float, repo: str | Path, weights: str
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
     return np.concatenate(out).astype(np.float32)
+
+
+def extract_tokens(X_uV: np.ndarray, fs: float, repo: str | Path, weights: str | Path | None,
+                   device: str | None = None, batch: int = 16, *, seed: int | None = None,
+                   before_last: bool = False) -> np.ndarray:
+    """Return full (N,C,4,200) tokens or deterministic frozen-prefix activations.
+
+    ``before_last`` stops immediately before the last encoder block, allowing
+    exact last-block-only fine tuning with the frozen prefix in evaluation mode.
+    No training-data statistics are fitted during extraction.
+    """
+    import torch
+    if weights is None and seed is None:
+        raise ValueError("random-initialisation control needs an explicit seed")
+    device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+    model = load_cbramod(repo, weights, seed).to(device)
+    out = []
+    with torch.inference_mode():
+        for start in range(0, len(X_uV), batch):
+            x = torch.as_tensor(prepare_input(X_uV[start:start+batch], fs), device=device)
+            if before_last:
+                tokens = model.patch_embedding(x)
+                for layer in model.encoder.layers[:-1]:
+                    tokens = layer(tokens)
+            else:
+                tokens = model(x)
+            if tuple(tokens.shape[1:]) != tuple(x.shape[1:]) or tokens.shape[2] != 4 or tokens.shape[3] != 200:
+                raise RuntimeError(f"unexpected CBraMod output {tuple(tokens.shape)}")
+            out.append(tokens.cpu().numpy())
+    del model
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+    return np.concatenate(out).astype(np.float32)
+
+
+def pool_tokens(tokens: np.ndarray, mode: str, regions=None) -> np.ndarray:
+    """Pool full tokens globally, by time, or by supplied channel regions/halves."""
+    t = np.asarray(tokens)
+    if t.ndim != 4 or t.shape[2] != 4:
+        raise ValueError("expected N,C,4,D tokens")
+    if mode == "global":
+        return t.mean(axis=(1, 2))
+    if mode == "time":
+        return t.mean(axis=1).reshape(len(t), -1)
+    if mode != "region_phase" or regions is None:
+        raise ValueError("mode must be global, time or region_phase with channel groups")
+    groups = [np.asarray(g, dtype=int) for g in regions]
+    flat = np.concatenate(groups)
+    if any(len(g) == 0 for g in groups) or sorted(flat.tolist()) != list(range(t.shape[1])):
+        raise ValueError("regions must partition channels exactly once")
+    return np.concatenate([t[:, group, half].mean(axis=(1, 2)) for group in groups
+                           for half in (slice(0, 2), slice(2, 4))], axis=1)
+
+
+def make_last_block_classifier(repo, weights, *, seed=0, classes=3):
+    """Trainable last encoder block plus time-preserving linear head.
+
+    Input is a cached evaluation-mode frozen-prefix activation; this removes
+    redundant prefix evaluation without changing the computation being trained.
+    """
+    import torch
+    from torch import nn
+    model = load_cbramod(repo, weights, seed)
+    class LastBlockReadout(nn.Module):
+        def __init__(self, block):
+            super().__init__()
+            self.block = block
+            self.head = nn.Linear(800, classes)
+
+        def forward(self, tokens):
+            return self.head(self.block(tokens).mean(dim=1).flatten(1))
+    return LastBlockReadout(model.encoder.layers[-1])

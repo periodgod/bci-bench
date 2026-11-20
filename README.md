@@ -11,11 +11,13 @@
 - 标准预处理：线性去趋势、50 Hz 陷波、4-40 Hz 六阶 Butterworth 零相位滤波、优先使用 trial 内 `baseline_start_ms -> cue_onset_ms` 的 pre-cue baseline 校正。
 - 质量控制：按文件检测非有限值、平线、异常标准差、鲁棒标准差和 0.1-99.9% 鲁棒峰峰值，支持 `off/auto/strict/manual` 坏道模式。
 - 模型：线性/概率与树模型、滤波器组 CSP+SVM/LDA、黎曼几何基线、MiniRocket、XGBoost、sklearn 多算法组、hard voting、EEGNet/CapsuleNet、M1/M2；另含 SSVEP CCA/FBCCA/TRCA/eTRCA/TDCA、ERP xDAWN+LDA、EA/CORAL/黎曼对齐/MMD/DANN/AdaBN、可选 Braindecode 网络与本地 EEG-ResNet/InceptionTime。
+- 事件相关低频波形：`event_waveform.low_frequency_waveforms`、`XDawnTangentLogistic`、`ClassTemplateProjection`，可在训练折内学习空间滤波与类模板；反馈前缀支持先截断再零相位滤波，避免后续样本污染。
 - 在线评估：因果 SOS 滤波、连续流窗口缓存、当前主机推理延迟/吞吐基准和时间漂移分箱摘要；不包含设备接入或自动域适配。
 - 评估：分层 K 折交叉验证，输出 accuracy、balanced accuracy、macro F1、混淆矩阵、每类召回率和 JSON 报告。
 - 诊断：分组置换重要性、通道/频带留出消融、验证折温度缩放、ECE/Brier 与风险-覆盖率曲线；这些是解释/概率评估工具，不是性能提升声明。
 - MI/ME 标签模式：同一份 `4 部位 × 想象/执行` 连续采集数据可直接切成 8 类、想象/执行 2 类、身体部位 4 类、只看想象 4 类或只看执行 4 类。
 - EEG 基础模型适配：输入合同核验、冻结线性读出、指定模块解冻，以及 PEFT LoRA / DoRA / PiSSA / AdaLoRA；方法来源和未支持项见 [`docs/foundation_finetuning_methods.md`](docs/foundation_finetuning_methods.md)。
+- Few-shot 线性校准：`fewshot` 提供分层 k-shot 抽样、源解码器低秩高斯先验、MAP Logistic 和半监督 EM；实验设计与证据边界见 [`docs/EEG_FOUNDATION_PROTOCOLS.md`](docs/EEG_FOUNDATION_PROTOCOLS.md)。
 
 BIOT 冻结特征需安装 `.[biot]`，并向 `wyu_bci_bench.foundation.biot.extract_features` 提供官方 BIOT 源码目录、匹配的 encoder checkpoint、严格有序的官方 16/18 双极导联名、200 Hz EEG 和默认 10 秒窗合同。适配器不会猜测或补造通道映射。
 
@@ -251,7 +253,7 @@ wyu-bci-bench bench `
 
 ## 跨被试 / 跨会话 / 基础模型协议层（v0.2）
 
-毕业论文（PROTEUS 三指令）、EEG/EMG Challenge 2026 Track 2、OmniEEG Challenge 2026 共用 `grouped / splits / metrics / priors / nets / ssl / foundation / readout / registry / submission` 模块。说明、旧函数对照和核验结果见 [docs/EEG_FOUNDATION_PROTOCOLS.md](docs/EEG_FOUNDATION_PROTOCOLS.md)；新实验从 [examples/proteus_loso_template.py](examples/proteus_loso_template.py) 复制。
+毕业论文（PROTEUS 三指令）、EEG/EMG Challenge 2026 Track 2、OmniEEG Challenge 2026 共用 `grouped / splits / metrics / priors / nets / ssl / foundation / readout / fewshot / registry / submission` 模块。说明、旧函数对照和核验结果见 [docs/EEG_FOUNDATION_PROTOCOLS.md](docs/EEG_FOUNDATION_PROTOCOLS.md)；新实验从 [examples/proteus_loso_template.py](examples/proteus_loso_template.py) 复制。
 
 表征学习方法对应的已发表论文、作者代码、bench 实现状态与复现边界见 [docs/representation_learning_papers.md](docs/representation_learning_papers.md)。
 

@@ -13,7 +13,7 @@ from typing import Any
 
 import numpy as np
 
-from .deep import aggregate_trial_predictions, make_trial_windows, set_seed, validation_split
+from .deep import aggregate_trial_probabilities, make_trial_windows, set_seed, validation_split
 
 
 MODEL_CLASSES = {
@@ -177,7 +177,7 @@ def fit_predict_braindecode(
     step_seconds: float = 0.5,
     device: str | None = None,
 ) -> tuple[np.ndarray, dict[str, float | str]]:
-    """Train one Braindecode baseline and return trial-level test predictions.
+    """Train one Braindecode baseline and return trial-level test probabilities.
 
     ``train_eeg`` and ``test_eeg`` are ``(trials, channels, samples)`` arrays.
     Validation is split by trial within the supplied training fold; test labels
@@ -268,7 +268,7 @@ def fit_predict_braindecode(
     model.eval()
     with torch.no_grad():
         probabilities = torch.softmax(model(test_tensor), dim=1).cpu().numpy()
-    predictions = aggregate_trial_predictions(probabilities, test_trial_ids, len(test_x))
+    predictions = aggregate_trial_probabilities(probabilities, test_trial_ids, len(test_x)).astype(np.float32)
     metadata: dict[str, float | str] = {
         "model": name,
         "best_epoch": float(best_epoch),

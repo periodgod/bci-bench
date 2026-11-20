@@ -46,10 +46,13 @@ The workspace once held 327 scripts with no shared library; `cell_score` alone w
 | Need | Use |
 |---|---|
 | Load windows with groups | `grouped.load_proteus_windows`, `grouped.load_grouped_npz`, `GroupedEEGDataset.meta` |
+| Load unlabeled pretraining shards | `pretraining.load_pretraining_corpus`, `PretrainingShard.ordered_session_indices`, `pretraining.resolve_channel_coordinates` |
+| Load audited external windows | `external_datasets.load_lee2019_mi_windows`, `external_datasets.load_bnci2015_004_windows` |
 | Rebuild cache from raw BIDS | `proteus_bids.extract_windows`, `proteus_bids.save_cache` |
 | Welch feature variants | `window_features.extract_variant(X, "pre_post_car")` |
 | LOSO / inner LOSO | `splits.loso`, `splits.inner_loso` |
 | Cross-session (ses-1 → later) | `splits.cross_session` |
+| Ordered few-shot calibration | `splits.ordered_kshot_mask(..., recording_order=...)` |
 | NeuralBench sealed sessions 4–6 | `splits.neuralbench_sealed` |
 | OmniEEG subject 8:1:1 × 3 seeds | `splits.subject_ratio`, `splits.multi_seed_subject_ratio` |
 | PROTEUS headline metric | `metrics.cell_balanced_accuracy` (participant×session×interface, equal weight) |
@@ -61,6 +64,7 @@ The workspace once held 327 scripts with no shared library; `cell_score` alone w
 | SimCLR / VICReg / SupCon / TS2Vec | `ssl.RepresentationModel`, `ssl.TS2VecModel`, `ssl.train_ssl`, `ssl.train_ts2vec`, `ssl.hierarchical_contrastive_loss`, `ssl.encode`, `ssl.cross_subject_supcon` |
 | Average random-seed controls | `metrics.mean_summaries` (mean of scores, not a probability ensemble) |
 | Foundation model / fine-tuning | `foundation.require_verified(name)`, `foundation.cbramod.extract_features`, `foundation.eegpt.extract_features`, `foundation.finetuning.configure_trainable_parameters`, `attach_peft_adapter` |
+| Session-aware EEG foundation model | `foundation.sessionfm.SessionFM`, `foundation.sessionfm.SessionBaselineState` |
 | SSVEP decoding | `ssvep.SSVEPCCA`, `ssvep.FilterBankCCA`, `ssvep.TRCA` |
 | ERP/P300 epochs | `erp.XDawnLDA` (requires already labeled target/non-target epochs) |
 | Unsupervised alignment | `adaptation.EuclideanAlignment`, `euclidean_align`, `coral_align` |

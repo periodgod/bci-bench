@@ -123,3 +123,17 @@ class FilterBankCSP:
         if values.shape[1] != self.channel_count_:
             raise ValueError("test channel count must match the fitted model")
         return self.classifier_.predict(self._features(values))
+
+    def predict_proba(self, X: np.ndarray) -> np.ndarray:
+        """Native classifier probabilities, columns ordered as ``classes_``.
+
+        The default uncalibrated SVM deliberately does not support this method.
+        """
+        if self.classifier_ is None or self.channel_count_ is None:
+            raise RuntimeError("call fit before predict_proba")
+        if not hasattr(self.classifier_, "predict_proba"):
+            raise ValueError("classifier has no calibrated probability interface; use classifier='lda'")
+        values = self._validate(X)
+        if values.shape[1] != self.channel_count_:
+            raise ValueError("test channel count must match the fitted model")
+        return self.classifier_.predict_proba(self._features(values))

@@ -109,6 +109,54 @@ def _make_eegnet_class(nn: Any) -> type:
     return EEGNet
 
 
+def _make_shallow_class(nn: Any) -> type:
+    class ShallowConvNet(nn.Module):
+        """Schirrmeister 2017 浅层卷积网：时间卷积→空间卷积→平方→平均池化→log→线性。
+
+        核长按采样率换算（250 Hz 下 25/75/15 点 → ``fs`` 下等时长），纯 PyTorch 实现，
+        不依赖 Braindecode，便于写进提交文件。
+        """
+
+        def __init__(self, channels: int, fs: float, classes: int, filters: int = 40, dropout: float = 0.5):
+            super().__init__()
+            k = max(5, int(round(float(fs) * 0.1)))
+            pool = max(5, int(round(float(fs) * 0.3)))
+            stride = max(2, int(round(float(fs) * 0.06)))
+            self.temporal = nn.Conv2d(1, filters, (1, k), bias=True)
+            self.spatial = nn.Conv2d(filters, filters, (channels, 1), bias=False)
+            self.bn = nn.BatchNorm2d(filters)
+            self.pool = nn.AvgPool2d((1, pool), stride=(1, stride))
+            self.dropout = nn.Dropout(dropout)
+            self.classifier = nn.LazyLinear(int(classes))
+
+        def forward(self, x):
+            import torch
+
+            if x.ndim == 3:
+                x = x.unsqueeze(1)
+            z = self.bn(self.spatial(self.temporal(x)))
+            z = torch.log(torch.clamp(self.pool(z * z), min=1e-6))
+            return self.classifier(self.dropout(z).flatten(1))
+
+    return ShallowConvNet
+
+
+def make_shallow_convnet(channels: int, fs: float, classes: int, samples: int, **kwargs: Any):
+    """构造纯 PyTorch ShallowConvNet，并用一次哑前向确定线性层维度。输入 ``(B,C,T)``。"""
+    torch, nn, _, _ = _torch()
+    model = _make_shallow_class(nn)(channels, fs, classes, **kwargs)
+    with torch.no_grad():
+        model.eval()
+        model(torch.zeros(2, channels, samples))
+    return model
+
+
+def make_eegnet(channels: int, fs: float, classes: int, **kwargs: Any):
+    """构造本模块的纯 PyTorch EEGNet。输入 ``(B,1,C,T)``。"""
+    _, nn, _, _ = _torch()
+    return _make_eegnet_class(nn)(channels, int(round(float(fs))), classes, **kwargs)
+
+
 def validation_split(y: np.ndarray, seed: int = 42, fraction: float = 0.22) -> tuple[np.ndarray, np.ndarray]:
     """在当前训练折内部按类别抽出验证试次，不接触外层测试行。"""
     labels = np.asarray(y, dtype=np.int64)
@@ -127,13 +175,24 @@ def validation_split(y: np.ndarray, seed: int = 42, fraction: float = 0.22) -> t
     return np.asarray(sorted(train), dtype=np.int64), np.asarray(sorted(val), dtype=np.int64)
 
 
+def aggregate_trial_probabilities(probabilities: np.ndarray, trial_ids: np.ndarray, trial_count: int) -> np.ndarray:
+    """平均每个源试次的窗口概率，保留完整类别分布供后续融合。"""
+    values = np.asarray(probabilities, dtype=np.float64)
+    ids = np.asarray(trial_ids, dtype=np.int64)
+    if values.ndim != 2 or ids.shape != (len(values),) or trial_count < 1:
+        raise ValueError("probabilities must be 2D, trial_ids must match its rows, and trial_count must be positive")
+    result = np.empty((trial_count, values.shape[1]), dtype=np.float64)
+    for trial_idx in range(trial_count):
+        mask = ids == trial_idx
+        if not mask.any():
+            raise ValueError(f"trial {trial_idx} has no window probabilities")
+        result[trial_idx] = values[mask].mean(axis=0)
+    return result
+
+
 def aggregate_trial_predictions(probabilities: np.ndarray, trial_ids: np.ndarray, trial_count: int) -> np.ndarray:
     """平均每个源试次所有窗口的概率，再映射为 trial 级硬标签。"""
-    predictions = []
-    for trial_idx in range(trial_count):
-        mask = trial_ids == trial_idx
-        predictions.append(int(np.argmax(np.mean(probabilities[mask], axis=0))))
-    return np.asarray(predictions, dtype=np.int64)
+    return aggregate_trial_probabilities(probabilities, trial_ids, trial_count).argmax(axis=1).astype(np.int64)
 
 
 def fit_predict_eegnet(

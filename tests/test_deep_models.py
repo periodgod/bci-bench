@@ -28,7 +28,7 @@ class BraindecodeModelTests(unittest.TestCase):
                 scores = model(torch.randn(2, 8, 500))
                 self.assertEqual(tuple(scores.shape), (2, 3))
 
-    def test_fold_local_training_returns_trial_predictions(self):
+    def test_fold_local_training_returns_trial_probabilities(self):
         from wyu_bci_bench.deep_models import fit_predict_braindecode
 
         rng = np.random.default_rng(7)
@@ -41,10 +41,18 @@ class BraindecodeModelTests(unittest.TestCase):
             "shallow_fbcsp", train, labels, test, 250, 3,
             seed=4, max_epochs=2, patience=2,
         )
-        self.assertEqual(pred.shape, (3,))
-        self.assertTrue(np.isin(pred, [0, 1, 2]).all())
+        self.assertEqual(pred.shape, (3, 3))
+        self.assertTrue(np.isfinite(pred).all())
+        np.testing.assert_allclose(pred.sum(axis=1), 1.0, atol=1e-6)
         self.assertEqual(metadata["model"], "shallow_fbcsp")
         self.assertGreater(metadata["parameter_count"], 0)
+
+    def test_trial_probability_aggregation_preserves_distribution(self):
+        from wyu_bci_bench.deep import aggregate_trial_probabilities
+
+        probabilities = np.array([[0.8, 0.2], [0.4, 0.6], [0.1, 0.9]])
+        result = aggregate_trial_probabilities(probabilities, np.array([0, 0, 1]), 2)
+        np.testing.assert_allclose(result, [[0.6, 0.4], [0.1, 0.9]])
 
     def test_unknown_model_is_rejected(self):
         from wyu_bci_bench.deep_models import make_braindecode_model

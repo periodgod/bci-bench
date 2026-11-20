@@ -235,6 +235,14 @@ if nn is not None:
             z = (math_features - self.math_mean) / self.math_scale
             return self.math_prior(z) + torch.sigmoid(self.temporal_gate) * self.temporal_head(self.multiscale(raw))
 
+        def forward_with_hidden(self, raw, math_features):
+            """返回 M2 logits 与分类头 24-D GELU 隐层，不改变原 forward 合同。"""
+            z = (math_features - self.math_mean) / self.math_scale
+            hidden = self.temporal_head[1](self.temporal_head[0](self.multiscale(raw)))
+            logits = self.math_prior(z) + torch.sigmoid(self.temporal_gate) * self.temporal_head[3](
+                self.temporal_head[2](hidden))
+            return logits, hidden
+
 
 VARIANTS = ("current_full_head_2bin", "power_first_2bin", "power_first_4bin")
 
@@ -268,7 +276,7 @@ def make_model(train_features: np.ndarray, train_y: np.ndarray, variant: str = "
 
 
 def train_model(model, raw, features, y, subjects, epochs, seed, device, batch_size=128, lr=4e-4,
-                weight_decay=0.05, sampling_mode="multiscale_subject_class_balanced"):
+                weight_decay=0.05, sampling_mode="multiscale_subject_class_balanced", reset_rng=True):
     """按固定 epoch 训练 M1/M2，并按参与者×类别分层有放回抽样。
 
     ``raw``、``features``、``y`` 必须来自同一训练折且行顺序一致；模型创建时的
@@ -277,7 +285,8 @@ def train_model(model, raw, features, y, subjects, epochs, seed, device, batch_s
     """
     from torch.utils.data import DataLoader, TensorDataset, WeightedRandomSampler
 
-    seed_all(seed)
+    if reset_rng:
+        seed_all(seed)
     model = model.to(device)
     weights = sampling_weights(y, subjects, sampling_mode)
     sampler = WeightedRandomSampler(torch.as_tensor(weights, dtype=torch.double), len(y), replacement=True,

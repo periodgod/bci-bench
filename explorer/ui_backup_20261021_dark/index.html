@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WYU-BCI Bench Explorer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <button class="menu" type="button" data-menu="1" aria-label="打开导航">☰</button>
+  <aside>
+    <div class="brand"><b>WYU-BCI Bench</b><small id="brandMeta">加载中…</small></div>
+    <input class="search" id="search" type="search" placeholder="搜索模块 / 函数 / 类…" aria-label="搜索">
+    <nav id="nav" aria-label="视图"></nav>
+    <div class="side-sec">功能分层</div>
+    <nav id="layerNav" aria-label="分层"></nav>
+    <div class="side-foot">
+      <div id="footMeta"></div>
+      <button id="rescan" type="button">重新扫描源码</button>
+    </div>
+  </aside>
+  <main id="main" tabindex="-1"><div class="empty">正在读取 bench 源码…</div></main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>

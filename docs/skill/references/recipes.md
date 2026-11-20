@@ -186,3 +186,26 @@ aligned_source_features = coral_align(source_features, unlabeled_target_features
 ```
 
 If `domain_ids` or `unlabeled_target_features` include held-out evaluation inputs, the result is transductive/test-time adaptation. The protocol must explicitly permit this and must never use target labels.
+
+## 13. CoCoT-EEG supervised fine-tuning
+
+```python
+from wyu_bci_bench import fit_predict_cocot
+
+# X arrays are (trials, channels, samples); channel order and label mapping
+# must already be fixed. The recipe resamples to 100 Hz and applies per-epoch,
+# per-channel median/MAD normalization inside the call.
+pred, meta = fit_predict_cocot(
+    train_eeg=X_train,
+    train_y=y_train,
+    test_eeg=X_test,
+    classes=n_classes,
+    sampling_rate=fs,
+    seed=seed,
+    epochs=40,
+    # Optional: strict encoder-only state dict from an audited checkpoint.
+    encoder_state_dict=encoder_state,
+)
+```
+
+Appendix B reports AdamW learning rate `1e-4`, batch size 16, weight decay `0.05`, and a 1024-dimensional, two-layer classification head; CHB-MIT uses learning rate `1e-7`. The paper does not report an early-stopping rule, so this bench recipe selects the checkpoint by validation loss on trials held out from the outer training fold. Its default kernel list and residual-GLU scale are explicit implementation choices because the paper has no linked code and does not fully specify those values. No CoCoT pretrained checkpoint is bundled or validated here.

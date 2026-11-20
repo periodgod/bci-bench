@@ -1,4 +1,4 @@
-"""Frozen EEGPT encoder features under the official 58-channel contract.
+"""EEGPT encoder features for named subsets of its pretrained channel montage.
 
 The adapter owns channel ordering, epoch-duration checks, resampling and the
 official encoder call. Dataset-specific filtering and amplitude scaling stay
@@ -64,17 +64,17 @@ def prepare_input(
     channels = _canonical_channels(channel_names)
     if len(channels) != X.shape[1] or len(set(channels)) != len(channels):
         raise ValueError("channel_names must uniquely identify every input channel")
-    missing = [name for name in EEGPT_CHANNELS if name not in channels]
-    if missing:
-        raise ValueError(f"input is missing official EEGPT montage channels: {missing}")
-
-    ordered = X[:, [channels.index(name) for name in EEGPT_CHANNELS], :]
+    unknown = [name for name in channels if name not in EEGPT_CHANNELS]
+    if unknown:
+        raise ValueError(f"unknown pretrained EEGPT montage channels: {unknown}")
+    selected = [name for name in EEGPT_CHANNELS if name in channels]
+    ordered = X[:, [channels.index(name) for name in selected], :]
     if fs != TARGET_FS or ordered.shape[-1] != TARGET_SAMPLES:
         ordered = scipy.signal.resample(ordered, TARGET_SAMPLES, axis=-1).astype(np.float32)
     return (ordered * np.float32(amplitude_scale)).astype(np.float32, copy=False)
 
 
-def load_encoder(repo: str | Path, weights: str | Path):
+def load_encoder(repo: str | Path, weights: str | Path | None, *, channel_names=EEGPT_CHANNELS, seed=0):
     """Strictly load the official EEGPT encoder from a compatible safetensors file."""
     import torch
     from safetensors import safe_open
@@ -82,11 +82,14 @@ def load_encoder(repo: str | Path, weights: str | Path):
     from functools import partial
 
     require_verified("eegpt")
-    repo, weights = Path(repo), Path(weights)
+    repo = Path(repo)
+    channels = _canonical_channels(channel_names)
+    if not channels or len(set(channels)) != len(channels) or set(channels)-set(EEGPT_CHANNELS):
+        raise ValueError("channel_names must be a unique named pretrained montage subset")
     model_file = repo / "downstream" / "Modules" / "models" / "EEGPT_mcae_finetune.py"
     if not model_file.is_file():
         raise FileNotFoundError(f"official EEGPT model file not found: {model_file}")
-    if not weights.is_file():
+    if weights is not None and not Path(weights).is_file():
         raise FileNotFoundError(f"EEGPT safetensors checkpoint not found: {weights}")
 
     spec = importlib.util.spec_from_file_location("wyu_bci_bench_official_eegpt", model_file)
@@ -94,8 +97,9 @@ def load_encoder(repo: str | Path, weights: str | Path):
         raise ImportError(f"cannot import official EEGPT implementation from {model_file}")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    torch.manual_seed(seed)
     encoder = module.EEGTransformer(
-        img_size=[len(EEGPT_CHANNELS), TARGET_SAMPLES],
+        img_size=[len(channels), TARGET_SAMPLES],
         patch_size=PATCH_SIZE,
         patch_stride=PATCH_SIZE,
         embed_dim=512,
@@ -107,15 +111,16 @@ def load_encoder(repo: str | Path, weights: str | Path):
         norm_layer=partial(nn.LayerNorm, eps=1e-6),
     )
 
-    with safe_open(str(weights), framework="pt", device="cpu") as checkpoint:
-        state = {
-            key[len("target_encoder."):]: checkpoint.get_tensor(key)
-            for key in checkpoint.keys()
-            if key.startswith("target_encoder.")
-        }
-    if not state:
-        raise ValueError("checkpoint contains no target_encoder.* tensors")
-    encoder.load_state_dict(state, strict=True)
+    if weights is not None:
+        with safe_open(str(weights), framework="pt", device="cpu") as checkpoint:
+            state = {
+                key[len("target_encoder."):]: checkpoint.get_tensor(key)
+                for key in checkpoint.keys()
+                if key.startswith("target_encoder.")
+            }
+        if not state:
+            raise ValueError("checkpoint contains no target_encoder.* tensors")
+        encoder.load_state_dict(state, strict=True)
     encoder.eval()
     for parameter in encoder.parameters():
         parameter.requires_grad_(False)
@@ -139,10 +144,11 @@ def extract_features(
     if batch_size < 1:
         raise ValueError("batch_size must be positive")
     prepared = prepare_input(X, fs, channel_names, amplitude_scale=amplitude_scale)
-    encoder = load_encoder(repo, weights)
+    channels = [name for name in EEGPT_CHANNELS if name in _canonical_channels(channel_names)]
+    encoder = load_encoder(repo, weights, channel_names=channels)
     device = device or ("cuda" if torch.cuda.is_available() else "cpu")
     encoder = encoder.to(device)
-    chan_ids = encoder.prepare_chan_ids(list(EEGPT_CHANNELS)).to(device)
+    chan_ids = encoder.prepare_chan_ids(channels).to(device)
     outputs = []
     with torch.inference_mode():
         for start in range(0, len(prepared), batch_size):

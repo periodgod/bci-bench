@@ -11,7 +11,7 @@ from wyu_bci_bench.grouped import GroupedEEGDataset, load_grouped_npz
 from wyu_bci_bench.metrics import (cell_balanced_accuracy, exact_sign_flip_pvalue, grouped_balanced_accuracy,
                                    paired_subject_bootstrap, stream_mean_balanced_accuracy, summarize_predictions)
 from wyu_bci_bench.registry import load_oof, save_run
-from wyu_bci_bench.splits import cross_session, inner_loso, loso, neuralbench_sealed, subject_ratio
+from wyu_bci_bench.splits import cross_session, inner_loso, loso, neuralbench_sealed, ordered_kshot_mask, subject_ratio
 from wyu_bci_bench.submission import build_zip, check_zip
 
 
@@ -41,6 +41,22 @@ class MetricTests(unittest.TestCase):
         pred[6:] = 0  # big cell at chance, small cell perfect
         score = cell_balanced_accuracy(y, pred, s, np.full(36, "x"), np.full(36, "x"))
         self.assertAlmostEqual(score, (1 + 1 / 3) / 2)
+
+    def test_ordered_kshot_keeps_recording_order_and_classes(self):
+        subjects = np.array(["P"] * 8 + ["Q"] * 2)
+        sessions = np.array(["ses-1"] * 10)
+        y = np.array([0, 1, 0, 2, 1, 0, 2, 2, 0, 1])
+        mask = ordered_kshot_mask(subjects, sessions, y, "P", 2, n_classes=3)
+        self.assertEqual(np.flatnonzero(mask).tolist(), [0, 1, 2, 3, 4, 6])
+
+    def test_ordered_kshot_uses_explicit_recording_order(self):
+        subjects = np.array(["P"] * 6)
+        sessions = np.array(["ses-1"] * 6)
+        y = np.array([0, 0, 1, 1, 2, 2])
+        order = np.array([4, 1, 5, 0, 3, 2])
+        mask = ordered_kshot_mask(subjects, sessions, y, "P", 1, n_classes=3,
+                                  recording_order=order)
+        self.assertEqual(np.flatnonzero(mask).tolist(), [1, 3, 5])
 
     def test_absent_class_policy(self):
         y = np.array([0, 0, 1, 1])
@@ -221,8 +237,7 @@ class TorchTests(unittest.TestCase):
 
         self.assertTrue(require_verified("cbramod").verified)
         self.assertTrue(require_verified("eegpt").verified)
-        with self.assertRaises(NotImplementedError):
-            require_verified("labram")
+        self.assertTrue(require_verified("labram").verified)
 
     def test_biot_contract_is_verified_and_specific(self):
         from wyu_bci_bench.foundation import get_contract, require_verified

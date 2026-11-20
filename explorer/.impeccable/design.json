@@ -1,0 +1,896 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-21T04:17:01+00:00",
+  "title": "Design System: WYU-BCI Bench Explorer",
+  "extensions": {
+    "colorMeta": {
+      "line-ingest": {
+        "role": "primary",
+        "displayName": "数据接入蓝",
+        "canonical": "#1f5fc4",
+        "tonalRamp": [
+          "oklch(15% 0.171 259.6)",
+          "oklch(27% 0.171 259.6)",
+          "oklch(39% 0.171 259.6)",
+          "oklch(51% 0.171 259.6)",
+          "oklch(63% 0.171 259.6)",
+          "oklch(75% 0.171 259.6)",
+          "oklch(86% 0.171 259.6)",
+          "oklch(95% 0.171 259.6)"
+        ]
+      },
+      "line-signal": {
+        "role": "primary",
+        "displayName": "信号青绿",
+        "canonical": "#0a8a7a",
+        "tonalRamp": [
+          "oklch(15% 0.101 180.7)",
+          "oklch(27% 0.101 180.7)",
+          "oklch(39% 0.101 180.7)",
+          "oklch(51% 0.101 180.7)",
+          "oklch(63% 0.101 180.7)",
+          "oklch(75% 0.101 180.7)",
+          "oklch(86% 0.101 180.7)",
+          "oklch(95% 0.101 180.7)"
+        ]
+      },
+      "line-features": {
+        "role": "primary",
+        "displayName": "特征橙",
+        "canonical": "#d0661a",
+        "tonalRamp": [
+          "oklch(15% 0.156 49.8)",
+          "oklch(27% 0.156 49.8)",
+          "oklch(39% 0.156 49.8)",
+          "oklch(51% 0.156 49.8)",
+          "oklch(63% 0.156 49.8)",
+          "oklch(75% 0.156 49.8)",
+          "oklch(86% 0.156 49.8)",
+          "oklch(95% 0.156 49.8)"
+        ]
+      },
+      "line-classic": {
+        "role": "primary",
+        "displayName": "经典机器学习紫",
+        "canonical": "#6c3fc4",
+        "tonalRamp": [
+          "oklch(15% 0.195 293.5)",
+          "oklch(27% 0.195 293.5)",
+          "oklch(39% 0.195 293.5)",
+          "oklch(51% 0.195 293.5)",
+          "oklch(63% 0.195 293.5)",
+          "oklch(75% 0.195 293.5)",
+          "oklch(86% 0.195 293.5)",
+          "oklch(95% 0.195 293.5)"
+        ]
+      },
+      "line-deep": {
+        "role": "primary",
+        "displayName": "深度模型品红",
+        "canonical": "#c4307a",
+        "tonalRamp": [
+          "oklch(15% 0.194 355.0)",
+          "oklch(27% 0.194 355.0)",
+          "oklch(39% 0.194 355.0)",
+          "oklch(51% 0.194 355.0)",
+          "oklch(63% 0.194 355.0)",
+          "oklch(75% 0.194 355.0)",
+          "oklch(86% 0.194 355.0)",
+          "oklch(95% 0.194 355.0)"
+        ]
+      },
+      "line-foundation": {
+        "role": "primary",
+        "displayName": "基础模型湖蓝",
+        "canonical": "#0e86b8",
+        "tonalRamp": [
+          "oklch(15% 0.120 234.4)",
+          "oklch(27% 0.120 234.4)",
+          "oklch(39% 0.120 234.4)",
+          "oklch(51% 0.120 234.4)",
+          "oklch(63% 0.120 234.4)",
+          "oklch(75% 0.120 234.4)",
+          "oklch(86% 0.120 234.4)",
+          "oklch(95% 0.120 234.4)"
+        ]
+      },
+      "line-protocol": {
+        "role": "primary",
+        "displayName": "划分与评估草绿",
+        "canonical": "#3f8a1f",
+        "tonalRamp": [
+          "oklch(15% 0.158 138.3)",
+          "oklch(27% 0.158 138.3)",
+          "oklch(39% 0.158 138.3)",
+          "oklch(51% 0.158 138.3)",
+          "oklch(63% 0.158 138.3)",
+          "oklch(75% 0.158 138.3)",
+          "oklch(86% 0.158 138.3)",
+          "oklch(95% 0.158 138.3)"
+        ]
+      },
+      "line-stats": {
+        "role": "primary",
+        "displayName": "指标与统计红",
+        "canonical": "#c42b2b",
+        "tonalRamp": [
+          "oklch(15% 0.189 26.4)",
+          "oklch(27% 0.189 26.4)",
+          "oklch(39% 0.189 26.4)",
+          "oklch(51% 0.189 26.4)",
+          "oklch(63% 0.189 26.4)",
+          "oklch(75% 0.189 26.4)",
+          "oklch(86% 0.189 26.4)",
+          "oklch(95% 0.189 26.4)"
+        ]
+      },
+      "line-results": {
+        "role": "primary",
+        "displayName": "结果与提交赭金",
+        "canonical": "#9a6b12",
+        "tonalRamp": [
+          "oklch(15% 0.112 76.7)",
+          "oklch(27% 0.112 76.7)",
+          "oklch(39% 0.112 76.7)",
+          "oklch(51% 0.112 76.7)",
+          "oklch(63% 0.112 76.7)",
+          "oklch(75% 0.112 76.7)",
+          "oklch(86% 0.112 76.7)",
+          "oklch(95% 0.112 76.7)"
+        ]
+      },
+      "line-interface": {
+        "role": "primary",
+        "displayName": "可视化与命令行石板灰",
+        "canonical": "#5f6873",
+        "tonalRamp": [
+          "oklch(15% 0.021 253.5)",
+          "oklch(27% 0.021 253.5)",
+          "oklch(39% 0.021 253.5)",
+          "oklch(51% 0.021 253.5)",
+          "oklch(63% 0.021 253.5)",
+          "oklch(75% 0.021 253.5)",
+          "oklch(86% 0.021 253.5)",
+          "oklch(95% 0.021 253.5)"
+        ]
+      },
+      "line-other": {
+        "role": "primary",
+        "displayName": "其他浅石板灰",
+        "canonical": "#7a828c",
+        "tonalRamp": [
+          "oklch(15% 0.018 254.0)",
+          "oklch(27% 0.018 254.0)",
+          "oklch(39% 0.018 254.0)",
+          "oklch(51% 0.018 254.0)",
+          "oklch(63% 0.018 254.0)",
+          "oklch(75% 0.018 254.0)",
+          "oklch(86% 0.018 254.0)",
+          "oklch(95% 0.018 254.0)"
+        ]
+      },
+      "trace": {
+        "role": "secondary",
+        "displayName": "导视荧光黄",
+        "canonical": "#ffd319",
+        "tonalRamp": [
+          "oklch(15% 0.176 93.2)",
+          "oklch(27% 0.176 93.2)",
+          "oklch(39% 0.176 93.2)",
+          "oklch(51% 0.176 93.2)",
+          "oklch(63% 0.176 93.2)",
+          "oklch(75% 0.176 93.2)",
+          "oklch(86% 0.176 93.2)",
+          "oklch(95% 0.176 93.2)"
+        ]
+      },
+      "trace-soft": {
+        "role": "secondary",
+        "displayName": "淡荧光黄",
+        "canonical": "#fff3b8",
+        "tonalRamp": [
+          "oklch(15% 0.076 98.0)",
+          "oklch(27% 0.076 98.0)",
+          "oklch(39% 0.076 98.0)",
+          "oklch(51% 0.076 98.0)",
+          "oklch(63% 0.076 98.0)",
+          "oklch(75% 0.076 98.0)",
+          "oklch(86% 0.076 98.0)",
+          "oklch(95% 0.076 98.0)"
+        ]
+      },
+      "ok": {
+        "role": "tertiary",
+        "displayName": "通过绿",
+        "canonical": "#136a2f",
+        "tonalRamp": [
+          "oklch(15% 0.121 148.9)",
+          "oklch(27% 0.121 148.9)",
+          "oklch(39% 0.121 148.9)",
+          "oklch(51% 0.121 148.9)",
+          "oklch(63% 0.121 148.9)",
+          "oklch(75% 0.121 148.9)",
+          "oklch(86% 0.121 148.9)",
+          "oklch(95% 0.121 148.9)"
+        ]
+      },
+      "ok-soft": {
+        "role": "tertiary",
+        "displayName": "通过绿底",
+        "canonical": "#e3f3e8",
+        "tonalRamp": [
+          "oklch(15% 0.022 155.9)",
+          "oklch(27% 0.022 155.9)",
+          "oklch(39% 0.022 155.9)",
+          "oklch(51% 0.022 155.9)",
+          "oklch(63% 0.022 155.9)",
+          "oklch(75% 0.022 155.9)",
+          "oklch(86% 0.022 155.9)",
+          "oklch(95% 0.022 155.9)"
+        ]
+      },
+      "bad": {
+        "role": "tertiary",
+        "displayName": "未通过红",
+        "canonical": "#c42b2b",
+        "tonalRamp": [
+          "oklch(15% 0.189 26.4)",
+          "oklch(27% 0.189 26.4)",
+          "oklch(39% 0.189 26.4)",
+          "oklch(51% 0.189 26.4)",
+          "oklch(63% 0.189 26.4)",
+          "oklch(75% 0.189 26.4)",
+          "oklch(86% 0.189 26.4)",
+          "oklch(95% 0.189 26.4)"
+        ]
+      },
+      "bad-soft": {
+        "role": "tertiary",
+        "displayName": "未通过红底",
+        "canonical": "#fbe5e5",
+        "tonalRamp": [
+          "oklch(15% 0.024 17.6)",
+          "oklch(27% 0.024 17.6)",
+          "oklch(39% 0.024 17.6)",
+          "oklch(51% 0.024 17.6)",
+          "oklch(63% 0.024 17.6)",
+          "oklch(75% 0.024 17.6)",
+          "oklch(86% 0.024 17.6)",
+          "oklch(95% 0.024 17.6)"
+        ]
+      },
+      "stamp-ok": {
+        "role": "tertiary",
+        "displayName": "侧栏印记绿",
+        "canonical": "#6fd38f",
+        "tonalRamp": [
+          "oklch(15% 0.136 152.5)",
+          "oklch(27% 0.136 152.5)",
+          "oklch(39% 0.136 152.5)",
+          "oklch(51% 0.136 152.5)",
+          "oklch(63% 0.136 152.5)",
+          "oklch(75% 0.136 152.5)",
+          "oklch(86% 0.136 152.5)",
+          "oklch(95% 0.136 152.5)"
+        ]
+      },
+      "stamp-bad": {
+        "role": "tertiary",
+        "displayName": "侧栏印记红",
+        "canonical": "#ff8b8b",
+        "tonalRamp": [
+          "oklch(15% 0.141 20.9)",
+          "oklch(27% 0.141 20.9)",
+          "oklch(39% 0.141 20.9)",
+          "oklch(51% 0.141 20.9)",
+          "oklch(63% 0.141 20.9)",
+          "oklch(75% 0.141 20.9)",
+          "oklch(86% 0.141 20.9)",
+          "oklch(95% 0.141 20.9)"
+        ]
+      },
+      "stamp-none": {
+        "role": "tertiary",
+        "displayName": "侧栏印记琥珀",
+        "canonical": "#e7b45a",
+        "tonalRamp": [
+          "oklch(15% 0.123 79.7)",
+          "oklch(27% 0.123 79.7)",
+          "oklch(39% 0.123 79.7)",
+          "oklch(51% 0.123 79.7)",
+          "oklch(63% 0.123 79.7)",
+          "oklch(75% 0.123 79.7)",
+          "oklch(86% 0.123 79.7)",
+          "oklch(95% 0.123 79.7)"
+        ]
+      },
+      "ground": {
+        "role": "neutral",
+        "displayName": "白纸",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "oklch(15% 0.000 89.9)",
+          "oklch(27% 0.000 89.9)",
+          "oklch(39% 0.000 89.9)",
+          "oklch(51% 0.000 89.9)",
+          "oklch(63% 0.000 89.9)",
+          "oklch(75% 0.000 89.9)",
+          "oklch(86% 0.000 89.9)",
+          "oklch(95% 0.000 89.9)"
+        ]
+      },
+      "ground-2": {
+        "role": "neutral",
+        "displayName": "浅灰底板",
+        "canonical": "#f4f5f7",
+        "tonalRamp": [
+          "oklch(15% 0.003 264.5)",
+          "oklch(27% 0.003 264.5)",
+          "oklch(39% 0.003 264.5)",
+          "oklch(51% 0.003 264.5)",
+          "oklch(63% 0.003 264.5)",
+          "oklch(75% 0.003 264.5)",
+          "oklch(86% 0.003 264.5)",
+          "oklch(95% 0.003 264.5)"
+        ]
+      },
+      "ground-3": {
+        "role": "neutral",
+        "displayName": "深一级底板",
+        "canonical": "#eceef1",
+        "tonalRamp": [
+          "oklch(15% 0.005 258.3)",
+          "oklch(27% 0.005 258.3)",
+          "oklch(39% 0.005 258.3)",
+          "oklch(51% 0.005 258.3)",
+          "oklch(63% 0.005 258.3)",
+          "oklch(75% 0.005 258.3)",
+          "oklch(86% 0.005 258.3)",
+          "oklch(95% 0.005 258.3)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "墨",
+        "canonical": "#16191d",
+        "tonalRamp": [
+          "oklch(15% 0.009 255.6)",
+          "oklch(27% 0.009 255.6)",
+          "oklch(39% 0.009 255.6)",
+          "oklch(51% 0.009 255.6)",
+          "oklch(63% 0.009 255.6)",
+          "oklch(75% 0.009 255.6)",
+          "oklch(86% 0.009 255.6)",
+          "oklch(95% 0.009 255.6)"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "次墨",
+        "canonical": "#454c55",
+        "tonalRamp": [
+          "oklch(15% 0.018 254.7)",
+          "oklch(27% 0.018 254.7)",
+          "oklch(39% 0.018 254.7)",
+          "oklch(51% 0.018 254.7)",
+          "oklch(63% 0.018 254.7)",
+          "oklch(75% 0.018 254.7)",
+          "oklch(86% 0.018 254.7)",
+          "oklch(95% 0.018 254.7)"
+        ]
+      },
+      "dim": {
+        "role": "neutral",
+        "displayName": "暗注",
+        "canonical": "#636c78",
+        "tonalRamp": [
+          "oklch(15% 0.022 255.6)",
+          "oklch(27% 0.022 255.6)",
+          "oklch(39% 0.022 255.6)",
+          "oklch(51% 0.022 255.6)",
+          "oklch(63% 0.022 255.6)",
+          "oklch(75% 0.022 255.6)",
+          "oklch(86% 0.022 255.6)",
+          "oklch(95% 0.022 255.6)"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "细线",
+        "canonical": "#dde0e5",
+        "tonalRamp": [
+          "oklch(15% 0.008 260.7)",
+          "oklch(27% 0.008 260.7)",
+          "oklch(39% 0.008 260.7)",
+          "oklch(51% 0.008 260.7)",
+          "oklch(63% 0.008 260.7)",
+          "oklch(75% 0.008 260.7)",
+          "oklch(86% 0.008 260.7)",
+          "oklch(95% 0.008 260.7)"
+        ]
+      },
+      "rule-2": {
+        "role": "neutral",
+        "displayName": "次细线",
+        "canonical": "#c3c8cf",
+        "tonalRamp": [
+          "oklch(15% 0.011 256.7)",
+          "oklch(27% 0.011 256.7)",
+          "oklch(39% 0.011 256.7)",
+          "oklch(51% 0.011 256.7)",
+          "oklch(63% 0.011 256.7)",
+          "oklch(75% 0.011 256.7)",
+          "oklch(86% 0.011 256.7)",
+          "oklch(95% 0.011 256.7)"
+        ]
+      },
+      "neutral-ring": {
+        "role": "neutral",
+        "displayName": "中性环灰",
+        "canonical": "#8a929c",
+        "tonalRamp": [
+          "oklch(15% 0.018 254.0)",
+          "oklch(27% 0.018 254.0)",
+          "oklch(39% 0.018 254.0)",
+          "oklch(51% 0.018 254.0)",
+          "oklch(63% 0.018 254.0)",
+          "oklch(75% 0.018 254.0)",
+          "oklch(86% 0.018 254.0)",
+          "oklch(95% 0.018 254.0)"
+        ]
+      },
+      "rail": {
+        "role": "neutral",
+        "displayName": "导视炭",
+        "canonical": "#1f2329",
+        "tonalRamp": [
+          "oklch(15% 0.013 258.4)",
+          "oklch(27% 0.013 258.4)",
+          "oklch(39% 0.013 258.4)",
+          "oklch(51% 0.013 258.4)",
+          "oklch(63% 0.013 258.4)",
+          "oklch(75% 0.013 258.4)",
+          "oklch(86% 0.013 258.4)",
+          "oklch(95% 0.013 258.4)"
+        ]
+      },
+      "rail-2": {
+        "role": "neutral",
+        "displayName": "炭二",
+        "canonical": "#2b3038",
+        "tonalRamp": [
+          "oklch(15% 0.016 259.8)",
+          "oklch(27% 0.016 259.8)",
+          "oklch(39% 0.016 259.8)",
+          "oklch(51% 0.016 259.8)",
+          "oklch(63% 0.016 259.8)",
+          "oklch(75% 0.016 259.8)",
+          "oklch(86% 0.016 259.8)",
+          "oklch(95% 0.016 259.8)"
+        ]
+      },
+      "rail-ink": {
+        "role": "neutral",
+        "displayName": "侧栏白字",
+        "canonical": "#f2f4f6",
+        "tonalRamp": [
+          "oklch(15% 0.003 247.9)",
+          "oklch(27% 0.003 247.9)",
+          "oklch(39% 0.003 247.9)",
+          "oklch(51% 0.003 247.9)",
+          "oklch(63% 0.003 247.9)",
+          "oklch(75% 0.003 247.9)",
+          "oklch(86% 0.003 247.9)",
+          "oklch(95% 0.003 247.9)"
+        ]
+      },
+      "rail-sub": {
+        "role": "neutral",
+        "displayName": "侧栏灰字",
+        "canonical": "#a7aeb8",
+        "tonalRamp": [
+          "oklch(15% 0.016 257.2)",
+          "oklch(27% 0.016 257.2)",
+          "oklch(39% 0.016 257.2)",
+          "oklch(51% 0.016 257.2)",
+          "oklch(63% 0.016 257.2)",
+          "oklch(75% 0.016 257.2)",
+          "oklch(86% 0.016 257.2)",
+          "oklch(95% 0.016 257.2)"
+        ]
+      },
+      "rail-nav-ink": {
+        "role": "neutral",
+        "displayName": "侧栏导航字",
+        "canonical": "#d5d9df",
+        "tonalRamp": [
+          "oklch(15% 0.009 258.3)",
+          "oklch(27% 0.009 258.3)",
+          "oklch(39% 0.009 258.3)",
+          "oklch(51% 0.009 258.3)",
+          "oklch(63% 0.009 258.3)",
+          "oklch(75% 0.009 258.3)",
+          "oklch(86% 0.009 258.3)",
+          "oklch(95% 0.009 258.3)"
+        ]
+      },
+      "rail-edge": {
+        "role": "neutral",
+        "displayName": "侧栏边线",
+        "canonical": "#3a414b",
+        "tonalRamp": [
+          "oklch(15% 0.020 257.3)",
+          "oklch(27% 0.020 257.3)",
+          "oklch(39% 0.020 257.3)",
+          "oklch(51% 0.020 257.3)",
+          "oklch(63% 0.020 257.3)",
+          "oklch(75% 0.020 257.3)",
+          "oklch(86% 0.020 257.3)",
+          "oklch(95% 0.020 257.3)"
+        ]
+      },
+      "rail-well": {
+        "role": "neutral",
+        "displayName": "侧栏井",
+        "canonical": "#15181d",
+        "tonalRamp": [
+          "oklch(15% 0.011 260.7)",
+          "oklch(27% 0.011 260.7)",
+          "oklch(39% 0.011 260.7)",
+          "oklch(51% 0.011 260.7)",
+          "oklch(63% 0.011 260.7)",
+          "oklch(75% 0.011 260.7)",
+          "oklch(86% 0.011 260.7)",
+          "oklch(95% 0.011 260.7)"
+        ]
+      },
+      "syntax-keyword": {
+        "role": "neutral",
+        "displayName": "语法·关键字",
+        "canonical": "#a01c6d",
+        "tonalRamp": [
+          "oklch(15% 0.181 349.0)",
+          "oklch(27% 0.181 349.0)",
+          "oklch(39% 0.181 349.0)",
+          "oklch(51% 0.181 349.0)",
+          "oklch(63% 0.181 349.0)",
+          "oklch(75% 0.181 349.0)",
+          "oklch(86% 0.181 349.0)",
+          "oklch(95% 0.181 349.0)"
+        ]
+      },
+      "syntax-string": {
+        "role": "neutral",
+        "displayName": "语法·字符串",
+        "canonical": "#1e6b2a",
+        "tonalRamp": [
+          "oklch(15% 0.124 145.8)",
+          "oklch(27% 0.124 145.8)",
+          "oklch(39% 0.124 145.8)",
+          "oklch(51% 0.124 145.8)",
+          "oklch(63% 0.124 145.8)",
+          "oklch(75% 0.124 145.8)",
+          "oklch(86% 0.124 145.8)",
+          "oklch(95% 0.124 145.8)"
+        ]
+      },
+      "syntax-comment": {
+        "role": "neutral",
+        "displayName": "语法·注释",
+        "canonical": "#5f6873",
+        "tonalRamp": [
+          "oklch(15% 0.021 253.5)",
+          "oklch(27% 0.021 253.5)",
+          "oklch(39% 0.021 253.5)",
+          "oklch(51% 0.021 253.5)",
+          "oklch(63% 0.021 253.5)",
+          "oklch(75% 0.021 253.5)",
+          "oklch(86% 0.021 253.5)",
+          "oklch(95% 0.021 253.5)"
+        ]
+      },
+      "syntax-number": {
+        "role": "neutral",
+        "displayName": "语法·数字",
+        "canonical": "#a14a00",
+        "tonalRamp": [
+          "oklch(15% 0.135 50.3)",
+          "oklch(27% 0.135 50.3)",
+          "oklch(39% 0.135 50.3)",
+          "oklch(51% 0.135 50.3)",
+          "oklch(63% 0.135 50.3)",
+          "oklch(75% 0.135 50.3)",
+          "oklch(86% 0.135 50.3)",
+          "oklch(95% 0.135 50.3)"
+        ]
+      },
+      "syntax-decorator": {
+        "role": "neutral",
+        "displayName": "语法·装饰器",
+        "canonical": "#7c4a00",
+        "tonalRamp": [
+          "oklch(15% 0.101 66.8)",
+          "oklch(27% 0.101 66.8)",
+          "oklch(39% 0.101 66.8)",
+          "oklch(51% 0.101 66.8)",
+          "oklch(63% 0.101 66.8)",
+          "oklch(75% 0.101 66.8)",
+          "oklch(86% 0.101 66.8)",
+          "oklch(95% 0.101 66.8)"
+        ]
+      },
+      "syntax-definition": {
+        "role": "neutral",
+        "displayName": "语法·定义名",
+        "canonical": "#0b4fa8",
+        "tonalRamp": [
+          "oklch(15% 0.157 258.2)",
+          "oklch(27% 0.157 258.2)",
+          "oklch(39% 0.157 258.2)",
+          "oklch(51% 0.157 258.2)",
+          "oklch(63% 0.157 258.2)",
+          "oklch(75% 0.157 258.2)",
+          "oklch(86% 0.157 258.2)",
+          "oklch(95% 0.157 258.2)"
+        ]
+      },
+      "syntax-builtin": {
+        "role": "neutral",
+        "displayName": "语法·内置名",
+        "canonical": "#005f73",
+        "tonalRamp": [
+          "oklch(15% 0.081 218.7)",
+          "oklch(27% 0.081 218.7)",
+          "oklch(39% 0.081 218.7)",
+          "oklch(51% 0.081 218.7)",
+          "oklch(63% 0.081 218.7)",
+          "oklch(75% 0.081 218.7)",
+          "oklch(86% 0.081 218.7)",
+          "oklch(95% 0.081 218.7)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "视图标题",
+        "purpose": "每个视图顶部的中文标题；窄窗口 21px。"
+      },
+      "headline-mono": {
+        "displayName": "模块标题",
+        "purpose": "模块页 wyu_bci_bench.xxx 标题；窄窗口 18px。"
+      },
+      "title": {
+        "displayName": "分区标题",
+        "purpose": "细线分区的标题。"
+      },
+      "body": {
+        "displayName": "正文",
+        "purpose": "全局正文。"
+      },
+      "body-dense": {
+        "displayName": "密排正文",
+        "purpose": "表格、说明段、键值表、docstring 面板。"
+      },
+      "label": {
+        "displayName": "标注",
+        "purpose": "计数、元信息、侧栏分组名。"
+      },
+      "badge": {
+        "displayName": "徽章",
+        "purpose": "版本、依赖、核验徽章与主按钮文字。"
+      },
+      "station": {
+        "displayName": "站名",
+        "purpose": "线路图上的等宽模块名。"
+      },
+      "figure": {
+        "displayName": "统计数字",
+        "purpose": "总览标题下一行统计里的数字。"
+      },
+      "code": {
+        "displayName": "代码",
+        "purpose": "源码块、签名、方法列表、行内代码。"
+      }
+    },
+    "shadows": [
+      {
+        "name": "drawer-scrim",
+        "value": "0 0 0 100vmax rgba(22, 25, 29, .45)",
+        "purpose": "仅窄窗口侧栏抽屉打开时遮住主区。"
+      },
+      {
+        "name": "filter-focus-halo",
+        "value": "0 0 0 3px var(--trace-soft)",
+        "purpose": "仅主区筛选输入框聚焦。"
+      }
+    ],
+    "motion": [
+      {
+        "name": "hover-swap",
+        "value": "border-color .15s, background-color .15s",
+        "purpose": "瓦片与标签悬停换描边/底色，不位移。"
+      },
+      {
+        "name": "trace-fade",
+        "value": "opacity .15s",
+        "purpose": "线路图追踪态里非相关站与线条淡出。"
+      },
+      {
+        "name": "drawer-slide",
+        "value": "transform .2s",
+        "purpose": "窄窗口侧栏抽屉滑入。"
+      },
+      {
+        "name": "toast-ease",
+        "value": "opacity .2s, transform .2s cubic-bezier(.16, 1, .3, 1)",
+        "purpose": "提示条淡入并上移 6px。"
+      },
+      {
+        "name": "reduced-motion",
+        "value": "transition: none",
+        "purpose": "prefers-reduced-motion 时关闭全部过渡。"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "metro-stack",
+        "value": "1180px",
+        "purpose": "线路标签移到轨道上方，站距缩小。"
+      },
+      {
+        "name": "drawer",
+        "value": "820px",
+        "purpose": "侧栏变抽屉，线路竖排，网格单列。"
+      },
+      {
+        "name": "signature-wrap",
+        "value": "560px",
+        "purpose": "签名参数允许在任意处断行。"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "重新扫描源码（唯一实心按钮）",
+      "kind": "button",
+      "refersTo": "button-rescan",
+      "description": "侧栏底部通栏的唯一实心按钮；扫描中禁用并改字。",
+      "html": "<div class=\"ds-rail-demo\"><button class=\"ds-btn-rescan\" type=\"button\">重新扫描源码</button><button class=\"ds-btn-rescan\" type=\"button\" disabled>正在扫描…</button></div>",
+      "css": ".ds-rail-demo { background: var(--rail, #1f2329); padding: 12px; width: 248px; display: grid; gap: 10px; } .ds-btn-rescan { width: 100%; padding: 8px; border: 0; border-radius: 6px; background: var(--rail-ink, #f2f4f6); color: var(--ink, #16191d); font: 600 13px/1.6 \"Segoe UI Variable Text\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif; cursor: pointer; } .ds-btn-rescan:hover:not(:disabled) { background: #fff; } .ds-btn-rescan:focus-visible { outline: 2px solid var(--trace, #ffd319); outline-offset: 2px; } .ds-btn-rescan:disabled { opacity: .6; cursor: progress; }"
+    },
+    {
+      "name": "查看源码（轮廓 toggle）",
+      "kind": "button",
+      "refersTo": "button-toggle",
+      "description": "符号行右上的展开/收起按钮；展开态墨底白字。",
+      "html": "<div class=\"ds-row\"><button class=\"ds-toggle\" type=\"button\" aria-expanded=\"false\">查看源码</button><button class=\"ds-toggle\" type=\"button\" aria-expanded=\"true\">收起源码</button></div>",
+      "css": ".ds-row { display: flex; gap: 10px; } .ds-toggle { border: 1px solid var(--rule-2, #c3c8cf); background: var(--ground, #fff); color: var(--ink, #16191d); border-radius: 6px; padding: 2px 12px; font: 12.5px/1.6 \"Segoe UI Variable Text\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif; cursor: pointer; } .ds-toggle:hover { border-color: var(--ink, #16191d); } .ds-toggle:focus-visible { outline: 2px solid var(--ink, #16191d); outline-offset: 2px; } .ds-toggle[aria-expanded=\"true\"] { background: var(--ink, #16191d); color: #fff; border-color: var(--ink, #16191d); }"
+    },
+    {
+      "name": "侧栏搜索框",
+      "kind": "input",
+      "refersTo": "input-rail-search",
+      "description": "内凹在炭色侧栏里的搜索框，带 / 键帽；聚焦描边变黄。",
+      "html": "<div class=\"ds-rail-demo\"><div class=\"ds-searchbox\"><input class=\"ds-search\" type=\"search\" placeholder=\"搜索模块、函数、类、标签\" aria-label=\"搜索\"><kbd aria-hidden=\"true\">/</kbd></div></div>",
+      "css": ".ds-rail-demo { background: var(--rail, #1f2329); padding: 12px; width: 248px; } .ds-searchbox { position: relative; } .ds-search { width: 100%; box-sizing: border-box; padding: 8px 34px 8px 12px; border-radius: 6px; border: 1px solid #3a414b; background: #15181d; color: var(--rail-ink, #f2f4f6); font: 13px/1.6 \"Segoe UI Variable Text\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif; } .ds-search::placeholder { color: var(--rail-sub, #a7aeb8); } .ds-search:focus { outline: none; border-color: var(--trace, #ffd319); } .ds-searchbox kbd { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font: 11px/1 \"Cascadia Mono\", Consolas, monospace; color: var(--rail-sub, #a7aeb8); border: 1px solid #3a414b; border-radius: 4px; padding: 3px 6px; }"
+    },
+    {
+      "name": "主区筛选框",
+      "kind": "input",
+      "refersTo": "input-filter",
+      "description": "白底筛选输入；聚焦描边变墨并加淡黄光圈。",
+      "html": "<div><input class=\"ds-filter\" placeholder=\"筛选旧实现或 bench 位置\" aria-label=\"筛选\"><span class=\"ds-filter-count\">20 / 20</span></div>",
+      "css": ".ds-filter { padding: 7px 12px; border: 1px solid var(--rule-2, #c3c8cf); border-radius: 6px; width: 320px; max-width: 100%; background: var(--ground, #fff); color: var(--ink, #16191d); font: 13.5px/1.6 \"Segoe UI Variable Text\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif; } .ds-filter::placeholder { color: var(--dim, #636c78); } .ds-filter:focus { outline: none; border-color: var(--ink, #16191d); box-shadow: 0 0 0 3px var(--trace-soft, #fff3b8); } .ds-filter-count { margin-left: 12px; font-size: 13px; color: var(--dim, #636c78); }"
+    },
+    {
+      "name": "侧栏导航",
+      "kind": "nav",
+      "refersTo": "rail-nav-item",
+      "description": "视图导航与线路列表；当前项炭二底加黄圆点，线路项带线路色条。",
+      "html": "<nav class=\"ds-rail-nav\" aria-label=\"视图\"><button class=\"ds-nav-item ds-dot\" aria-current=\"page\">线路图</button><button class=\"ds-nav-item ds-dot\">全部模块<span class=\"ds-count\">27</span></button><div class=\"ds-side-sec\">线路（功能分层）</div><button class=\"ds-nav-item\"><span class=\"ds-swatch\" style=\"background:#1f5fc4\"></span>数据接入<span class=\"ds-count\">4</span></button><button class=\"ds-nav-item\"><span class=\"ds-swatch\" style=\"background:#6c3fc4\"></span>经典机器学习<span class=\"ds-count\">5</span></button></nav>",
+      "css": ".ds-rail-nav { background: var(--rail, #1f2329); padding: 12px; width: 248px; box-sizing: border-box; font-family: \"Segoe UI Variable Text\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif; } .ds-nav-item { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 7px 10px; border: 0; border-radius: 6px; background: transparent; color: #d5d9df; font-size: 13.5px; cursor: pointer; } .ds-nav-item:hover { background: var(--rail-2, #2b3038); color: #fff; } .ds-nav-item:focus-visible { outline: 2px solid var(--trace, #ffd319); outline-offset: 2px; } .ds-nav-item[aria-current=\"page\"] { background: var(--rail-2, #2b3038); color: #fff; font-weight: 600; } .ds-dot::before { content: \"\"; width: 6px; height: 6px; border-radius: 50%; flex: none; margin-left: -2px; } .ds-dot[aria-current=\"page\"]::before { background: var(--trace, #ffd319); } .ds-count { margin-left: auto; font-size: 12px; color: var(--rail-sub, #a7aeb8); font-variant-numeric: tabular-nums; } .ds-side-sec { margin: 18px 10px 6px; font-size: 12px; color: var(--rail-sub, #a7aeb8); } .ds-swatch { width: 14px; height: 6px; border-radius: 3px; flex: none; }"
+    },
+    {
+      "name": "线路 chip 与能力标签",
+      "kind": "chip",
+      "refersTo": "line-chip",
+      "description": "线路 chip 带线路色条；能力标签三维靠实底/实线/虚线区分；筛选 chip 按下为墨底。",
+      "html": "<div class=\"ds-chips\"><button class=\"ds-linechip\"><span class=\"ds-sw\" style=\"background:#3f8a1f\"></span>划分与评估</button><span class=\"ds-tag ds-stage\">实验划分</span><span class=\"ds-tag ds-method\">分组隔离划分</span><span class=\"ds-tag ds-goal\">评估跨组泛化</span><button class=\"ds-tag ds-fchip\" aria-pressed=\"false\">实验划分<span>6</span></button><button class=\"ds-tag ds-fchip\" aria-pressed=\"true\">特征提取<span>4</span></button></div>",
+      "css": ".ds-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-family: \"Segoe UI Variable Text\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif; } .ds-linechip { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--rule-2, #c3c8cf); background: var(--ground, #fff); border-radius: 999px; padding: 2px 12px 2px 8px; font-size: 13px; font-weight: 600; color: var(--ink, #16191d); cursor: pointer; } .ds-linechip:hover { border-color: var(--ink, #16191d); } .ds-sw { width: 18px; height: 6px; border-radius: 3px; } .ds-tag { font-size: 12.5px; border-radius: 999px; padding: 1px 10px; border: 1px solid transparent; white-space: nowrap; color: var(--ink, #16191d); transition: border-color .15s, background-color .15s; } .ds-stage { background: var(--ground-3, #eceef1); } .ds-method { background: var(--ground, #fff); border-color: var(--rule-2, #c3c8cf); } .ds-goal { background: var(--ground, #fff); border: 1px dashed #8a929c; } .ds-tag:hover, .ds-linechip:focus-visible, .ds-fchip:focus-visible { border-color: var(--ink, #16191d); } .ds-linechip:focus-visible, .ds-fchip:focus-visible { outline: 2px solid var(--ink, #16191d); outline-offset: 2px; } .ds-fchip { display: inline-flex; gap: 7px; align-items: center; padding: 3px 12px; background: var(--ground-3, #eceef1); cursor: pointer; font-family: inherit; } .ds-fchip span { font-size: 11.5px; color: var(--dim, #636c78); } .ds-fchip[aria-pressed=\"true\"] { background: var(--ink, #16191d); color: #fff; border-color: var(--ink, #16191d); } .ds-fchip[aria-pressed=\"true\"] span { color: #c9ced5; }"
+    },
+    {
+      "name": "声明印记与核验徽章",
+      "kind": "chip",
+      "refersTo": "claim-design-intent",
+      "description": "五种声明等级只靠印记形状区分；核验徽章用状态色加文字。",
+      "html": "<div class=\"ds-claims\"><span class=\"ds-claim ds-mech\">机制</span><span class=\"ds-claim ds-intent\">设计意图</span><span class=\"ds-claim ds-eval\">评估用途</span><span class=\"ds-claim ds-meas\">度量</span><span class=\"ds-claim ds-art\">产物管理</span><span class=\"ds-badge ds-v02\">v0.2</span><span class=\"ds-badge ds-ok\">一致</span><span class=\"ds-badge ds-bad\">不一致</span></div>",
+      "css": ".ds-claims { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-family: \"Segoe UI Variable Text\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif; } .ds-claim { display: inline-block; font-size: 11.5px; line-height: 17px; font-weight: 700; padding: 0 7px; border-radius: 3px; border: 1.5px solid; white-space: nowrap; } .ds-mech { color: var(--ink-2, #454c55); border-color: #8a929c; } .ds-intent { color: #fff; border-color: var(--ink, #16191d); background: var(--ink, #16191d); } .ds-eval { color: var(--ink, #16191d); border-color: var(--ink, #16191d); background: var(--ground, #fff); } .ds-meas { color: var(--ink, #16191d); border-color: transparent; background: var(--ground-3, #eceef1); } .ds-art { color: var(--ink-2, #454c55); border-style: dotted; border-color: var(--ink-2, #454c55); } .ds-badge { display: inline-block; font-size: 12px; line-height: 18px; padding: 0 7px; border-radius: 4px; font-weight: 600; border: 1px solid transparent; font-variant-numeric: tabular-nums; } .ds-v02 { color: #fff; background: var(--ink, #16191d); } .ds-ok { color: var(--ok, #136a2f); background: var(--ok-soft, #e3f3e8); } .ds-bad { color: var(--bad, #c42b2b); background: var(--bad-soft, #fbe5e5); border-color: var(--bad, #c42b2b); }"
+    },
+    {
+      "name": "线路图（一条线）",
+      "kind": "custom",
+      "refersTo": "station-ring",
+      "description": "签名组件：线路标签 + 6px 线路色轨道 + 圆环站点；换乘站加墨色外圈与换乘色点；悬停站点被黄色叠加。",
+      "html": "<div class=\"ds-mline\" style=\"--c:#d0661a\"><button class=\"ds-lbadge\"><span class=\"ds-lsw\"></span><b>特征工程</b><small>3 站</small></button><ul class=\"ds-stations\" style=\"--n:3\"><li><button class=\"ds-stn ds-xfer\"><span class=\"ds-ring\"></span><b>features</b><small>158 行</small><span class=\"ds-xl\"><i style=\"background:#6c3fc4\"></i><i style=\"background:#3f8a1f\"></i></span></button></li><li><button class=\"ds-stn ds-lit\"><span class=\"ds-ring\"></span><b>priors</b><small>108 行</small></button></li><li><button class=\"ds-stn\"><span class=\"ds-ring\"></span><b>window_features</b><small>76 行</small></button></li></ul></div>",
+      "css": ".ds-mline { --cell: 150px; display: grid; grid-template-columns: 150px minmax(0, 1fr); align-items: start; min-height: 72px; font-family: \"Segoe UI Variable Text\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif; color: var(--ink, #16191d); } .ds-lbadge { display: flex; align-items: center; gap: 8px; border: 0; background: none; padding: 6px 12px 6px 0; text-align: left; cursor: pointer; color: inherit; } .ds-lsw { width: 26px; height: 10px; border-radius: 5px; background: var(--c); } .ds-lbadge b { font-size: 13.5px; white-space: nowrap; } .ds-lbadge small { margin-left: auto; color: var(--dim, #636c78); font-size: 12px; } .ds-lbadge:hover b { text-decoration: underline; text-underline-offset: 3px; } .ds-stations { list-style: none; margin: 0; padding: 0; display: flex; position: relative; } .ds-stations::before { content: \"\"; position: absolute; left: 0; top: 14px; height: 6px; border-radius: 3px; background: var(--c); width: calc(var(--n) * var(--cell) - var(--cell) / 2); } .ds-stn { position: relative; width: var(--cell); display: flex; flex-direction: column; align-items: center; gap: 1px; border: 0; background: none; padding: 4px 6px 8px; border-radius: 6px; cursor: pointer; color: inherit; transition: background-color .15s; } .ds-stn:hover { background: var(--ground-2, #f4f5f7); } .ds-stn:focus-visible { outline: 2px solid var(--ink, #16191d); outline-offset: 2px; } .ds-ring { width: 20px; height: 20px; margin-top: 3px; border-radius: 50%; background: var(--ground, #fff); border: 4px solid var(--c); box-sizing: border-box; } .ds-xfer .ds-ring { width: 26px; height: 26px; margin-top: 0; outline: 2px solid var(--ink, #16191d); outline-offset: 2px; } .ds-stn b { font: 600 13px/1.35 \"Cascadia Mono\", Consolas, monospace; margin-top: 4px; padding: 0 3px; border-radius: 2px; } .ds-stn small { font-size: 12px; color: var(--dim, #636c78); font-variant-numeric: tabular-nums; } .ds-xl { display: flex; gap: 3px; margin-top: 3px; } .ds-xl i { width: 10px; height: 10px; border-radius: 50%; } .ds-lit .ds-ring, .ds-lit b { background: var(--trace, #ffd319); }"
+    },
+    {
+      "name": "核验印记",
+      "kind": "custom",
+      "refersTo": "verification-stamp",
+      "description": "侧栏底部常驻的复现核验印记；状态色描边加文字，未通过也照样盖在原位。",
+      "html": "<div class=\"ds-rail-demo\"><button class=\"ds-stamp ds-stamp-ok\"><b>复现核验一致 29/29</b><small>2026-10-21 11:17:44 · 含 EDF 重提取</small></button><button class=\"ds-stamp ds-stamp-bad\"><b>复现核验未通过 27/29</b><small>2026-10-21 11:17:44</small></button></div>",
+      "css": ".ds-rail-demo { background: var(--rail, #1f2329); padding: 12px; width: 248px; box-sizing: border-box; } .ds-stamp { display: block; width: 100%; text-align: left; border: 2px solid currentColor; border-radius: 6px; padding: 8px 10px; margin-bottom: 10px; background: transparent; font-family: \"Segoe UI Variable Text\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif; font-variant-numeric: tabular-nums; cursor: pointer; } .ds-stamp b { display: block; font-size: 14px; letter-spacing: .5px; } .ds-stamp small { display: block; font-size: 11.5px; color: var(--rail-sub, #a7aeb8); margin-top: 1px; } .ds-stamp-ok { color: #6fd38f; } .ds-stamp-bad { color: #ff8b8b; } .ds-stamp:hover { background: var(--rail-2, #2b3038); } .ds-stamp:focus-visible { outline: 2px solid var(--trace, #ffd319); outline-offset: 2px; }"
+    },
+    {
+      "name": "接口瓦片与代码块",
+      "kind": "card",
+      "refersTo": "symbol-tile",
+      "description": "分层页的公开接口瓦片（悬停换墨描边与浅灰底）和源码块（浅灰底、不可选中的行号）。",
+      "html": "<div class=\"ds-stack\"><button class=\"ds-mod\"><b>loso</b><small>函数 · 逐个留出参与者的外层交叉验证</small><small class=\"ds-en\">Leave-one-subject-out outer folds.</small></button><pre class=\"ds-code\"><span class=\"ds-ln\">50</span><span class=\"ds-kw\">def</span> <span class=\"ds-def\">loso</span>(subjects, people=<span class=\"ds-kw\">None</span>):\n<span class=\"ds-ln\">51</span>    <span class=\"ds-com\"># one fold per participant</span></pre></div>",
+      "css": ".ds-stack { display: grid; gap: 12px; max-width: 420px; font-family: \"Segoe UI Variable Text\", \"Segoe UI\", \"Microsoft YaHei UI\", sans-serif; } .ds-mod { border: 1px solid var(--rule, #dde0e5); background: var(--ground, #fff); border-radius: 6px; padding: 10px 12px; text-align: left; cursor: pointer; transition: border-color .15s, background-color .15s; font-family: inherit; } .ds-mod:hover { border-color: var(--ink, #16191d); background: var(--ground-2, #f4f5f7); } .ds-mod:focus-visible { outline: 2px solid var(--ink, #16191d); outline-offset: 2px; } .ds-mod b { font: 600 13px \"Cascadia Mono\", Consolas, monospace; display: block; color: var(--ink, #16191d); } .ds-mod small { color: var(--ink-2, #454c55); display: block; font-size: 12.5px; line-height: 1.5; margin-top: 3px; } .ds-mod .ds-en { color: var(--dim, #636c78); font-size: 12px; } .ds-code { margin: 0; background: var(--ground-2, #f4f5f7); color: var(--ink, #16191d); font: 12.5px/1.6 \"Cascadia Mono\", Consolas, monospace; padding: 12px 16px; border-radius: 6px; overflow: auto; } .ds-ln { display: inline-block; width: 3.4em; color: var(--dim, #636c78); user-select: none; } .ds-kw { color: #a01c6d; font-weight: 600; } .ds-def { color: #0b4fa8; font-weight: 700; } .ds-com { color: #5f6873; font-style: italic; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "白底地铁导视",
+    "overview": "**Creative North Star: \"白底地铁导视\"**\n\n整套界面是一张地铁线路图加一套车站导视。bench 的十个功能分层是十条线路，每条线一种饱和线路色；模块是站，跨层被引用的模块是换乘站；模块详情页是站牌页。底图是白纸与墨色正文，左侧是一条深炭色导视侧栏（248px），侧栏里白字、线路色条、核验印记。颜色的工作只有三种：线路色标“这是哪条线”，荧光黄标“你在这里 / 与它相连”，状态色标“核验结果”。其余一切是墨、灰与细线。\n\n密度偏高，适合与 VS Code 并排在 1707×960 左右的 Windows 窗口里工作：正文 14px，表格与说明 13.5px，标识符、站名、签名、数字一律 Cascadia 等宽。层级只靠字号、字重与等宽/无衬线的切换建立，不靠装饰色块。界面平铺无投影，分区靠 1px 细线和浅灰底板（`ground-2`）。\n\n已在构建中落实的拒绝项：不用暗底卡片网格加 KPI 统计条（统计只在总览以一行文字出现），不用渐变、辉光、渐变文字，不加载外部字体或任何网络资源。",
+    "keyCharacteristics": [
+      "线路色只出现在线条、站点圆环、换乘色点、线路标签与色条上。",
+      "荧光黄是叠加层：悬停追踪、当前站、选区、焦点，从不改写线路色。",
+      "声明等级与核验结果用墨色印记的“形状”区分，不借线路色。",
+      "系统无衬线中文字体 + Cascadia 等宽；等宽只服务于标识符、代码和数字。",
+      "平铺无阴影；细线分区；圆角克制（2–6px），胶囊与圆环是线路图自带的形。",
+      "唯一的实心填充按钮是侧栏底部的“重新扫描源码”。"
+    ],
+    "rules": [
+      {
+        "name": "The Line Colour Rule",
+        "body": "线路色只画线路：线条、站环、换乘色点、线路标签色条、依赖图节点描边、模块表分组下划线。它从不用作文字色、按钮底色、状态色或装饰底。",
+        "section": "colors"
+      },
+      {
+        "name": "The Overlay Rule",
+        "body": "黄色只叠加，不替换。被追踪的站，圆环内芯和站名底变黄，环本身仍是线路色；其余站降到 0.3 透明度，线条降到 0.45。",
+        "section": "colors"
+      },
+      {
+        "name": "The Stamp-Not-Hue Rule",
+        "body": "五种声明等级（机制 / 设计意图 / 评估用途 / 度量 / 产物管理）只靠印记形状区分：灰描边、墨实心、墨描边白底、灰底无边、点线描边。任何声明等级都不借线路色或状态色。",
+        "section": "colors"
+      },
+      {
+        "name": "The Mono-Means-Literal Rule",
+        "body": "等宽字体只给会被原样复制或比对的东西：标识符、路径、签名、源码、行号、数字。中文解释、按钮文字、标题永远用无衬线。",
+        "section": "typography"
+      },
+      {
+        "name": "The Weight-Not-Paint Rule",
+        "body": "层级靠字号与字重（400 / 600 / 700）和细线建立，不靠彩色底块或彩色标题。",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Station Rule",
+        "body": "任何面板、瓦片、按钮在任何状态下都不投影。需要强调时换墨色描边或换底板一级。",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** 从 `ui/app.js` 的 `COLORS` 取线路色，用 `--c` 下发给线条、圆环、色条；新视图要标层就复用线路 chip 或 26×10px 色条。",
+      "**Do** 用黄色 `trace` 表示“当前 / 与它相连 / 被选中”，并保持被叠加元素的线路色描边不变。",
+      "**Do** 标识符、路径、签名、源码、行数和计数一律用 Cascadia 等宽，计数开 `tabular-nums`。",
+      "**Do** 用 1px `rule` 细线和 `ground-2` 底板分区；悬停只换描边或底色。",
+      "**Do** 核验失败照样显示在原位，用 `bad` 徽章或 `stamp-bad` 印记加文字结论。",
+      "**Do** 区分声明等级只用五种印记形状，并在旁边保留中文名称。",
+      "**Do** 正文对比度保持 ≥ 4.5:1（`dim` 对 `ground-2` 已是下限 4.88:1，不要放在更深的底上）。"
+    ],
+    "donts": [
+      "**Don't** 把线路色用作文字色、按钮底色、状态色或装饰底；也不要给声明等级套线路色。",
+      "**Don't** 让黄色替换线路色（例如把站环描边改黄）。",
+      "**Don't** 增加第二个实心填充按钮；展开态 toggle 与按下态 chip 的墨底只是状态，不是默认样式。",
+      "**Don't** 给面板、瓦片或按钮加投影、渐变、辉光或渐变文字；阴影只限抽屉遮罩与筛选框聚焦光圈。",
+      "**Don't** 使用大于 6px 的矩形圆角或大圆角卡片；圆形与胶囊只留给站环、色点和 chip。",
+      "**Don't** 在总览以外重复全库统计，也不要把统计做成数字卡片条。",
+      "**Don't** 引入外部字体、CDN 或任何网络资源。"
+    ]
+  }
+}

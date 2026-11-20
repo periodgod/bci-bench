@@ -92,3 +92,37 @@ def save_cache(dataset: GroupedEEGDataset, path: str | Path) -> None:
     """写出与现有 ``proteus_windows_v1.npz`` 一致的字段名，供统一加载器读取。"""
     np.savez_compressed(path, X=dataset.X, y=dataset.y, subjects=dataset.subjects, sessions=dataset.sessions,
                         interfaces=dataset.interfaces, channels=np.asarray(dataset.channel_names))
+
+
+def window_index(root: str | Path, *, offset_s=1.0, n_samples=480, fs=PROTEUS_FS):
+    """Recover cache-order event identities and EDF acquisition timestamps.
+
+    Uses headers and events, without filtering signals. Matching labels/groups
+    alone is structural verification, not numerical signal-cache equivalence.
+    A missing measurement timestamp remains None; filenames are not substituted
+    for acquisition chronology.
+    """
+    import mne
+    import pandas as pd
+    records = []
+    for edf, subject, session, interface in iter_runs(root):
+        raw = mne.io.read_raw_edf(edf, preload=False, verbose="ERROR")
+        date = raw.info["meas_date"]
+        stamp = None if date is None else float(date.timestamp())
+        output_length = int(round(raw.n_times * fs / raw.info["sfreq"]))
+        events = pd.read_csv(edf.with_name(edf.name.replace("_eeg.edf", "_events.tsv")), sep="\t")
+        for event_row, event in events.iterrows():
+            if event["trial_type"] not in CLASS_ID:
+                continue
+            start = int(round((float(event["onset"]) + offset_s) * fs))
+            if start < 0 or start + n_samples > output_length:
+                continue
+            records.append({"row": len(records), "subject": subject, "session": session,
+                            "interface": interface, "label": CLASS_ID[event["trial_type"]],
+                            "edf": str(edf), "run": edf.stem, "event_row": int(event_row),
+                            "run_index": int(RUN_RE.search(edf.name).group(4)),
+                            "onset": float(event["onset"]), "start_sample": start,
+                            "run_timestamp": stamp,
+                            "window_timestamp": None if stamp is None else stamp + float(event["onset"]) + offset_s})
+        raw.close()
+    return records

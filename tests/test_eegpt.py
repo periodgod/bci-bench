@@ -25,12 +25,13 @@ class EEGPTAdapterTests(unittest.TestCase):
         self.assertEqual(prepared.shape, (2, 58, 1024))
         np.testing.assert_allclose(prepared, expected, rtol=1e-6, atol=1e-7)
 
-    def test_requires_exact_channel_identity_and_unique_names(self):
+    def test_accepts_named_subset_rejects_unknown_and_duplicate(self):
         from wyu_bci_bench.foundation.eegpt import prepare_input
 
         X = np.zeros((1, 57, 1024), dtype=np.float32)
-        with self.assertRaisesRegex(ValueError, "missing"):
-            prepare_input(X, 256, self.channels[:-1], amplitude_scale=1.0)
+        self.assertEqual(prepare_input(X, 256, self.channels[:-1], amplitude_scale=1.0).shape, (1,57,1024))
+        with self.assertRaisesRegex(ValueError, "unknown"):
+            prepare_input(X, 256, list(self.channels[:-2])+['FAKE'], amplitude_scale=1.0)
         duplicate = list(self.channels)
         duplicate[-1] = duplicate[0]
         X = np.zeros((1, 58, 1024), dtype=np.float32)

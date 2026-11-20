@@ -48,6 +48,7 @@ class GroupedEEGDataset:
     source: str = ""
     source_sha256: str = ""
     metadata: dict[str, object] = field(default_factory=dict)
+    recording_order: np.ndarray | None = None
 
     def __post_init__(self) -> None:
         """在对象创建时尽早检查数组行数与通道名，避免错误延迟到训练阶段。"""
@@ -55,6 +56,8 @@ class GroupedEEGDataset:
         for name in ("X", "subjects", "sessions", "interfaces"):
             if len(getattr(self, name)) != n:
                 raise ValueError(f"{name} has {len(getattr(self, name))} rows, expected {n}")
+        if self.recording_order is not None and len(self.recording_order) != n:
+            raise ValueError("recording_order length does not match y")
         if self.X.ndim != 3:
             raise ValueError(f"X must be 3-D (windows, channels, samples), got {self.X.shape}")
         if self.X.shape[1] != len(self.channel_names):
@@ -81,6 +84,7 @@ class GroupedEEGDataset:
             interfaces=self.interfaces[mask], fs=self.fs, channel_names=list(self.channel_names),
             class_names=list(self.class_names), unit=self.unit, source=self.source,
             source_sha256=self.source_sha256, metadata=dict(self.metadata),
+            recording_order=None if self.recording_order is None else self.recording_order[mask],
         )
 
     def summary(self) -> dict[str, object]:
@@ -147,10 +151,11 @@ def load_grouped_npz(
             channels = [str(c) for c in data[channel_key].tolist()]
         else:
             channels = [f"ch{i}" for i in range(X.shape[1])]
+        recording_order = data["recording_order"].copy() if "recording_order" in data else None
     return GroupedEEGDataset(
         X=X, y=y, subjects=subjects, sessions=sessions, interfaces=interfaces, fs=float(fs),
         channel_names=channels, class_names=list(class_names), unit=unit, source=str(path),
-        source_sha256=file_sha256(path) if with_hash else "",
+        source_sha256=file_sha256(path) if with_hash else "", recording_order=recording_order,
     )
 
 

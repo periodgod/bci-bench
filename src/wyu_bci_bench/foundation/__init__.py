@@ -40,6 +40,18 @@ class InputContract:
 
 
 CONTRACTS: dict[str, InputContract] = {
+    "brainomni": InputContract(
+        model="BrainOmni Tiny/Base (NeurIPS 2025, arXiv:2505.18185)", verified=True,
+        steps=("caller supplies finite EEG windows in microvolts at256Hz, >=512 samples, and scalp-channel geometry",
+               "per-window CAR across EEG channels; divide by std(uV)+10, equivalent to official std(volts)+1e-5",
+               "center EEG xyz and divide by sqrt(3*mean(radius^2)); EEG orientation zeros and sensor_type0",
+               "strictly load complete official checkpoint including frozen RVQ tokenizer",
+               "official tokenizer unfold512 with25% overlap and padding; quantized vectors plus detached source embeddings",
+               "projection then blocks[:-1], L2-normalize feature dimension; mean time and flatten for official-style MLP"),
+        output="(N,16,W,lm_dim) embeddings; token-level classifier supports frozen/last_block/full/LoRA",
+        source="OpenTSLab/BrainOmni commit340d6b5aba886af76b217272cdb3251651e9bf16: factory/utils.py, brainomni/model.py, downstream/model.py; real Tiny strict-load and cached-vs-direct audit2026-11-14",
+        notes="Vendored SDPA evaluation dropout corrected to0; training unchanged. Torch distributed replaces DeepSpeed collectives for single-process use. Dataset filtering must be explicit; standard1005 geometry is a template. Full tuning excludes tokenizer, unused final block and pretraining head. Contract verification is not evidence of superiority.",
+    ),
     "cbramod": InputContract(
         model="CBraMod (ICLR 2025, arXiv:2412.07236)",
         verified=True,
@@ -52,20 +64,25 @@ CONTRACTS: dict[str, InputContract] = {
         notes="Upsampling does not restore content above the cache's 60 Hz Nyquist limit.",
     ),
     "labram": InputContract(
-        model="LaBraM (ICLR 2024, arXiv:2405.18765)", verified=False, steps=(), output="",
-        source="pilot_labram/ (BCIC-IV-2a line); PROTEUS probe labram_proteus_probe.py not re-audited",
-        notes="Audit channel vocabulary, 200 Hz patching and amplitude scaling before use.",
+        model="LaBraM (ICLR 2024, arXiv:2405.18765)", verified=True,
+        steps=("named channel IDs using official standard_1020 vocabulary plus CLS index0",
+               "PROTEUS microvolt 4s input at120Hz; resample_poly5/3 to200Hz then divide by100",
+               "reshape (N,C,4,200); encoder checkpoint with explicitly audited missing/unexpected heads",
+               "return all tokens; no VQ tokenizer needed for downstream encoder"),
+        output="(N,1+4*C,200) tokens",
+        source="official LaBraM engine_for_finetuning.py and utils.py retrieved2026-11-09; historical PROTEUS wrapper audited against them",
+        notes="Historical PROTEUS wrapper omitted /100. Corrected transfer contract is evaluated separately; checkpoint key compatibility alone does not establish performance.",
     ),
     "eegpt": InputContract(
         model="EEGPT (NeurIPS 2024)", verified=True,
-        steps=("require exactly the official 58-channel EEGPT montage by channel name",
+        steps=("require unique named channels from the official 58-channel EEGPT pretrained montage; subsets supported",
                "require a 4-second epoch and resample to 256 Hz (1024 samples)",
                "apply an explicit caller-supplied amplitude multiplier; no universal source scale is assumed",
                "strictly load target_encoder weights into the official EEGTransformer architecture",
                "encode to (batch, 16 time patches, 4 summary tokens, 512 features)",
                "mean-pool time patches and summary tokens to a 512-D frozen window feature"),
         output="512-D pooled frozen feature; raw encoder tokens are 16 x 4 x 512",
-        source="EEGPT official README.md, pretrain/engine_pretraining.py, downstream/Modules/models/EEGPT_mcae_finetune.py; local checkpoint strict-load audit 2026-10-21",
+        source="EEGPT official README.md, pretrain/engine_pretraining.py, downstream/Modules/models/EEGPT_mcae_finetune.py and linear_probe_EEGPT_BCIC2A.py (19-channel subset); strict-load audit 2026-10-21, subset source audit 2026-11-09",
         notes="The amplitude multiplier is mandatory and dataset-specific. The authors' pretraining preparation merges sources with differing unit conversions, so this adapter does not infer one universal scale. Strict loading verifies key/shape compatibility, not checkpoint provenance. The adapter exposes encoder-only features; it does not claim equivalence to each downstream classifier's predictor/reconstructor path.",
     ),
     "biot": InputContract(
@@ -109,3 +126,11 @@ from .eegpt import EEGPT_CHANNELS
 from .eegpt import extract_features as extract_eegpt_features
 from .eegpt import load_encoder as load_eegpt_encoder
 from .eegpt import prepare_input as eegpt_prepare_input
+from .bnci2015 import (BNCI2015_004_CHANNELS, BNCI2015_004_EVENT_IDS, BNCI2015_004_TASKS,
+                       audit_bnci2015_004, make_grouped_dataset)
+from .pa_fm import PAFMSCC, train_pafm, train_pafm_early_stopping
+from .sessionfm import SessionFM, SessionBaselineState, session_spectral_features
+from .sessionfm_downstream import (SessionFMDownstream, SessionFMState,
+                                   configure_sessionfm_stage, sample_sessionfm_mask,
+                                   sessionfm_adaptation_loss, sessionfm_parameter_groups,
+                                   sessionfm_training_optimizer)

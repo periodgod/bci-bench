@@ -73,6 +73,12 @@ class CapabilityCatalogTests(unittest.TestCase):
         self.assertTrue(set(entry["method"]) <= labels)
         self.assertEqual(len(entry["method"]), 8)
 
+    def test_cocot_architecture_and_finetuning_are_catalogued(self):
+        modules = {module["name"]: module for module in self.catalog["modules"]}
+        self.assertIn("cocot", modules)
+        symbols = {symbol["name"] for symbol in modules["cocot"]["symbols"]}
+        self.assertTrue({"make_cocot_model", "fit_predict_cocot"}.issubset(symbols))
+
     def test_true_csp_and_masked_reconstruction_are_catalogued(self):
         modules = {module["name"]: module for module in self.catalog["modules"]}
         self.assertIn("MNE", modules["csp"]["requires"])

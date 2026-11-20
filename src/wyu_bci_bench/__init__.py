@@ -5,6 +5,9 @@ from __future__ import annotations
 from .continuous import ContinuousPreprocessConfig, compute_channel_qc, load_continuous_dataset
 from .data import EEGDataset, Recording, load_npz_recording, merge_recordings, scan_recordings
 from .grouped import GroupedEEGDataset, load_grouped_npz, load_proteus_windows
+from .pretraining import PretrainingCorpus, PretrainingShard, load_pretraining_corpus, resolve_channel_coordinates
+from .external_datasets import load_bnci2015_004_windows, load_lee2019_mi_windows
+from .foundation.sessionfm import SessionFM, SessionBaselineState
 from .metrics import (
     cell_balanced_accuracy,
     exact_sign_flip_pvalue,
@@ -12,8 +15,10 @@ from .metrics import (
     stream_mean_balanced_accuracy,
     summarize_predictions,
 )
+from .protocol_diagnostics import collapse_gate, collapse_summary, guard_comparison
 from .registry import load_oof, save_run
-from .splits import cross_session, inner_loso, loso, neuralbench_sealed, subject_ratio
+from .splits import cross_session, inner_loso, loso, neuralbench_sealed, ordered_kshot_mask, subject_ratio
+from .foundation.pa_fm import PAFMSCC, train_pafm
 from .evaluate import (
     cross_validate_eegnet,
     cross_validate_filterbank_lda,
@@ -38,6 +43,7 @@ from .adaptation import (
     maximum_mean_discrepancy,
 )
 from .erp import XDawnLDA
+from .event_waveform import ClassTemplateProjection, XDawnTangentLogistic, low_frequency_waveforms
 from .ssvep import EnsembleTRCA, FilterBankCCA, SSVEPCCA, TDCA, TRCA
 from .csp import FilterBankCSP
 from .interpretability import band_ablation_scores, channel_ablation_scores, grouped_permutation_importance
@@ -54,11 +60,73 @@ from .foundation.eegpt import EEGPT_CHANNELS
 from .foundation.eegpt import extract_features as extract_eegpt_features
 from .foundation.eegpt import load_encoder as load_eegpt_encoder
 from .foundation.eegpt import prepare_input as eegpt_prepare_input
+from .cocot import fit_predict_cocot, make_cocot_model, resample_epochs, robust_normalize
+from .frontier_models import (
+    DiagonalStateSpace,
+    EEGMambaClassifier,
+    EEGMambaPatchEmbedding,
+    EEGM2,
+    EEGM2MambaBlock,
+    EEGMFTNet,
+    EEGSimpleConv,
+    STMambaNet,
+    make_eeg_mftnet,
+    make_eegmamba,
+    eegm2_representation_summary,
+    eegm2_temporal_spectral_loss,
+    make_eeg_simpleconv,
+    make_stmambanet,
+)
+from .frontier_advanced import (
+    AGTCNet,
+    CFSPMNet,
+    BFMMSDA,
+    DualExpertTransformer,
+    EEGMamba2024,
+    EEGTriNetPlusPlus,
+    GADCN,
+    GeometryEEGNet,
+    GraphCSPNet,
+    MIMamba,
+    PTSM,
+    ptsm_objective,
+    PhaseSpaceSPDNet,
+    SPDTokenTransformer,
+    SubjectAlignedEncoder,
+    SharedPrivatePrototypeMatcher,
+    TensorCSPNet,
+    cs_divergence_loss,
+    conditional_cs_divergence,
+    geometric_consistency_loss,
+    maml_episode_loss,
+)
+from .sict import SICTAdapter, SICTStream
+from .session_causal import FixedPointPriorMatchState, causal_fixed_point_prior_match
+from .fewshot import (
+    GaussianDecoderPrior,
+    balanced_kshot_indices,
+    estimate_decoder_prior,
+    fit_map_logistic,
+    isotropic_decoder_prior,
+    predict_map_logistic,
+    semi_supervised_em_logistic,
+)
 
 __all__ = [
     "GroupedEEGDataset",
+    "PretrainingCorpus",
+    "PretrainingShard",
+    "load_pretraining_corpus",
+    "resolve_channel_coordinates",
+    "load_lee2019_mi_windows",
+    "load_bnci2015_004_windows",
+    "SessionFM",
+    "SessionBaselineState",
     "cell_balanced_accuracy",
     "cross_session",
+    "ordered_kshot_mask",
+    "PAFMSCC",
+    "train_pafm",
     "exact_sign_flip_pvalue",
     "inner_loso",
     "load_grouped_npz",
@@ -67,6 +135,9 @@ __all__ = [
     "loso",
     "neuralbench_sealed",
     "paired_subject_bootstrap",
+    "collapse_summary",
+    "collapse_gate",
+    "guard_comparison",
     "save_run",
     "stream_mean_balanced_accuracy",
     "subject_ratio",
@@ -97,6 +168,9 @@ __all__ = [
     "TRCA",
     "TDCA",
     "XDawnLDA",
+    "ClassTemplateProjection",
+    "XDawnTangentLogistic",
+    "low_frequency_waveforms",
     "coral_align",
     "adapt_batch_norm",
     "compute_channel_qc",
@@ -120,6 +194,56 @@ __all__ = [
     "eegpt_prepare_input",
     "load_eegpt_encoder",
     "extract_eegpt_features",
+    "fit_predict_cocot",
+    "make_cocot_model",
+    "resample_epochs",
+    "robust_normalize",
+    "SICTAdapter",
+    "SICTStream",
+    "FixedPointPriorMatchState",
+    "causal_fixed_point_prior_match",
+    "GaussianDecoderPrior",
+    "balanced_kshot_indices",
+    "estimate_decoder_prior",
+    "fit_map_logistic",
+    "isotropic_decoder_prior",
+    "predict_map_logistic",
+    "semi_supervised_em_logistic",
+    "DiagonalStateSpace",
+    "STMambaNet",
+    "make_stmambanet",
+    "EEGSimpleConv",
+    "make_eeg_simpleconv",
+    "EEGMFTNet",
+    "make_eeg_mftnet",
+    "EEGMambaPatchEmbedding",
+    "EEGMambaClassifier",
+    "make_eegmamba",
+    "EEGM2",
+    "EEGM2MambaBlock",
+    "eegm2_temporal_spectral_loss",
+    "eegm2_representation_summary",
+    "MIMamba",
+    "CFSPMNet",
+    "BFMMSDA",
+    "conditional_cs_divergence",
+    "DualExpertTransformer",
+    "EEGMamba2024",
+    "PTSM",
+    "ptsm_objective",
+    "EEGTriNetPlusPlus",
+    "maml_episode_loss",
+    "SPDTokenTransformer",
+    "AGTCNet",
+    "GeometryEEGNet",
+    "GraphCSPNet",
+    "TensorCSPNet",
+    "GADCN",
+    "PhaseSpaceSPDNet",
+    "geometric_consistency_loss",
+    "cs_divergence_loss",
+    "SubjectAlignedEncoder",
+    "SharedPrivatePrototypeMatcher",
 ]
 
 __version__ = "0.2.0"

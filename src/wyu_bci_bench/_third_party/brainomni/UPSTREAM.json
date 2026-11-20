@@ -1,0 +1,56 @@
+{
+  "repository": "https://github.com/OpenTSLab/BrainOmni",
+  "commit": "340d6b5aba886af76b217272cdb3251651e9bf16",
+  "changes": [
+    "Package-relative imports only.",
+    "Use torch.distributed for collective API; local single-process runs never initialize a group.",
+    "SelfAttention: SDPA dropout_p=0 in eval; upstream applies attention dropout even in eval. Training behavior unchanged."
+  ],
+  "files": [
+    {
+      "file": "brainomni/model.py",
+      "upstream_sha256": "9e5f536104ead1887efa6c248e092d68c8a25be1cab39db9c63ff11309717d3b",
+      "adapted_sha256": "37bc6c4c46175591d04dafc924de7403871ac7dfde127586f1918b83364de8dc"
+    },
+    {
+      "file": "braintokenizer/model.py",
+      "upstream_sha256": "deabece8e85109600f1c6ca9bef6ad8878e46bf1621acb9847d3973769808055",
+      "adapted_sha256": "473aa74851569da1a25ea8a598932441fed61fd46fa8633270f9b7e1d09a0b80"
+    },
+    {
+      "file": "model_utils/attn.py",
+      "upstream_sha256": "1772c98a0cd15ebf55e2185429ea09f6ff43f29bbfb923ba5ba9b03a938795cb",
+      "adapted_sha256": "d21d850f0d7bfea2ee087f6bff06e5772fe8319b339d656b80111a8a9b24fbca"
+    },
+    {
+      "file": "model_utils/module.py",
+      "upstream_sha256": "f3e7e9b691f3b005df12c287d8626e62cb70a3d6ec8020f43a2c98362fb917db",
+      "adapted_sha256": "68333cf0ae0d03eaa1f742e8a06fe517df77f0339e7e8c5eb907023282497934"
+    },
+    {
+      "file": "model_utils/vq.py",
+      "upstream_sha256": "a099a6eeba822867af618218e2af5f267addfaace403fa7fa4253f01b15ad16e",
+      "adapted_sha256": "5d550cf1700c10bc3df00ee86751fa274f6760d5c95d544a49c565f52c90b4dd"
+    },
+    {
+      "file": "model_utils/seanet.py",
+      "upstream_sha256": "70e43bafa928a2af3dd8353b7f9528d3a46afa7757cf947708cc980a4d0d91a9",
+      "adapted_sha256": "0c55e3bf99562f5c006a1146e47f0d19daef92570811eb9846a00bf53768927c"
+    },
+    {
+      "file": "model_utils/conv.py",
+      "upstream_sha256": "ea017f6f57136126bc4dadab22ce092c4f711a6fc9ec4da39442d403c263aa62",
+      "adapted_sha256": "ea017f6f57136126bc4dadab22ce092c4f711a6fc9ec4da39442d403c263aa62"
+    },
+    {
+      "file": "model_utils/lstm.py",
+      "upstream_sha256": "cfb6dafd34e06c1375c7c6ff9e22e00d4ab3727bfe3218f94dc59692551c0b5e",
+      "adapted_sha256": "cfb6dafd34e06c1375c7c6ff9e22e00d4ab3727bfe3218f94dc59692551c0b5e"
+    },
+    {
+      "file": "model_utils/loss.py",
+      "upstream_sha256": "61e6d23a0eed592812c7fa3f982209079484a00fdda64ca691f68e62b05e3f07",
+      "adapted_sha256": "61e6d23a0eed592812c7fa3f982209079484a00fdda64ca691f68e62b05e3f07"
+    }
+  ]
+}

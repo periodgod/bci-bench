@@ -112,7 +112,8 @@ def attach_peft_adapter(
         config = LoraConfig(**common, init_lora_weights="pissa")
     elif method == "adalora":
         adalora = {key: value for key, value in common.items() if key != "r"}
-        config = AdaLoraConfig(**adalora, target_r=rank, init_r=rank * 2, total_step=total_steps)
+        config = AdaLoraConfig(**adalora, target_r=rank, init_r=rank * 2, total_step=total_steps,
+            tinit=int(total_steps * .1), tfinal=max(1, int(total_steps * .2)), deltaT=10)
     else:
         raise ValueError("method must be one of: lora, dora, pissa, adalora")
     return get_peft_model(model, config)
