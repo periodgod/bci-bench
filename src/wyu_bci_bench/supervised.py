@@ -1,7 +1,9 @@
-"""Fixed-budget, fold-local supervised training without hidden validation splits."""
+"""Fold-local supervised training with fixed budgets or a training-loss convergence rule."""
 from __future__ import annotations
 from contextlib import nullcontext
 import time
+from copy import deepcopy
+from itertools import count
 import numpy as np
 import torch
 from torch.nn import functional as F
@@ -31,7 +33,7 @@ def balanced_group_class_weights(y, *groups):
 def train_classifier(model, inputs, labels, *, epochs, seed, batch=64, lr=1e-3,
                      weight_decay=1e-3, weights=None, device="cuda", parameter_groups=None,
                      epoch_callback=None, amp_dtype=None, objective=None, step_callback=None,
-                     batch_order=None):
+                     batch_order=None, plateau_patience=6, plateau_delta=0.002, min_lr=0.000125):
     """Caller constructs/initializes model with its recorded seed before this call.
 
     Inputs are a tuple for multi-input models. No test data or validation labels
@@ -39,6 +41,14 @@ def train_classifier(model, inputs, labels, *, epochs, seed, batch=64, lr=1e-3,
     Optional CUDA bfloat16 autocast retains FP32 parameters/optimizer state and
     needs no gradient scaling. Default execution is unchanged full precision.
     """
+    convergence = epochs is None
+    if convergence:
+        if objective is not None or parameter_groups is not None:
+            raise ValueError("convergence uses weighted cross entropy and one learning rate")
+        if not (plateau_patience >= 1 and plateau_delta > 0 and 0 < min_lr <= lr):
+            raise ValueError("invalid convergence parameters")
+    elif epochs < 1:
+        raise ValueError("epochs must be positive or None")
     set_seed(seed)
     _autocast_context(device, amp_dtype)  # validate before allocating or fitting
     gen = torch.Generator().manual_seed(seed)
@@ -52,10 +62,31 @@ def train_classifier(model, inputs, labels, *, epochs, seed, batch=64, lr=1e-3,
         raise ValueError("weights must be finite positive values aligned with labels")
     parameters = parameter_groups if parameter_groups is not None else [p for p in model.parameters() if p.requires_grad]
     opt = torch.optim.AdamW(parameters, lr=lr, weight_decay=weight_decay)
-    sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, epochs * int(np.ceil(len(y) / batch)))
+    if not convergence:
+        sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, epochs * int(np.ceil(len(y) / batch)))
+
+    @torch.inference_mode()
+    def training_loss():
+        model.eval()
+        total = torch.zeros((), device=device)
+        for start in range(0, len(y), batch):
+            ix = slice(start, start + batch)
+            with _autocast_context(device, amp_dtype):
+                loss = F.cross_entropy(model(*(x[ix] for x in tensors)), y[ix], reduction="none")
+            total += (loss * w[ix]).sum()
+        result = float(total / w.sum())
+        if not np.isfinite(result):
+            raise FloatingPointError("non-finite convergence loss")
+        return result
+
     started, epoch_seconds = time.perf_counter(), []
     steps, losses = 0, []
-    for epoch in range(1, epochs + 1):
+    if convergence:
+        initial = best = benchmark = training_loss()
+        best_state = deepcopy(model.state_dict())
+        loss_curve, learning_rates = [], []
+        stale = 0
+    for epoch in (count(1) if convergence else range(1, epochs + 1)):
         tick = time.perf_counter()
         model.train()
         order = (torch.randperm(len(y), generator=gen) if batch_order is None
@@ -81,14 +112,38 @@ def train_classifier(model, inputs, labels, *, epochs, seed, batch=64, lr=1e-3,
                 step_callback(steps, model)
             steps += 1
             losses.append(float(loss.detach()))
-            sched.step()
+            if not convergence:
+                sched.step()
         if device.startswith("cuda"):
             torch.cuda.synchronize()
         epoch_seconds.append(time.perf_counter() - tick)
         if epoch_callback is not None:
             epoch_callback(epoch, model.eval())
+        if convergence:
+            value = training_loss()
+            learning_rates.append(opt.param_groups[0]["lr"])
+            loss_curve.append(value)
+            if value < best:
+                best, best_state = value, deepcopy(model.state_dict())
+            if value < benchmark - plateau_delta:
+                benchmark, stale = value, 0
+            else:
+                stale += 1
+                if stale >= plateau_patience:
+                    current_lr = learning_rates[-1]
+                    if current_lr <= min_lr:
+                        break
+                    opt.param_groups[0]["lr"] = max(min_lr, 0.25 * current_lr)
+                    benchmark, stale = value, 0
     model.eval()
-    return model, {"epochs": epochs, "seed": seed, "seconds": time.perf_counter() - started,
+    convergence_report = {}
+    if convergence:
+        model.load_state_dict(best_state)
+        convergence_report = {
+            "stop_reason": "training_loss_plateau_at_min_lr", "initial_train_loss": initial,
+            "best_train_loss": best, "train_loss_curve": loss_curve, "learning_rates": learning_rates,
+        }
+    return model, {**convergence_report, "epochs": epoch, "seed": seed, "seconds": time.perf_counter() - started,
                    "amp_dtype": amp_dtype, "optimizer_steps": steps,
                    "first_loss": losses[0], "last_loss": losses[-1],
                    "epoch_seconds": epoch_seconds,

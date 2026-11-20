@@ -1,5 +1,7 @@
 # 跨被试 / 跨会话 / 基础模型协议层（v0.2.0）
 
+2026-11-20 Track 2 类别卷积残差实验新增 prior_residual.PriorResidualEEG。输入包含冻结的二分类 logit、按类别选频和导联的输入、全导联输入。两路卷积带跳连与分时段池化，并通过有界加法修正保留原始统计特征的判别分数。supervised.train_classifier 在 epochs=None 时按完整训练折的加权交叉熵逐级降低学习率，达到最低学习率后用同一平台条件停止并恢复训练损失最低的模型。固定轮数调用继续使用余弦调度。
+
 v0.1 面向机械手单人 K 折；v0.2 增加按参与者分组的协议层，供毕业论文（PROTEUS）、EEG/EMG Challenge 2026 Track 2 和 OmniEEG Challenge 2026 共用。所有新模块已用 `scripts/verify_proteus_port.py` 对照历史 OOF 与原始代码核验（`--with-bids` 共 29/29 通过：论文与 10-19 复现报告的 cell BA、bootstrap 区间、sign-flip p 值逐位一致；数学先验特征、Welch 特征变体、SupCon、M1/M2 的种子初始化与前向输出与原实现完全相同；从原始 EDF 重新提取 sub-P01 与缓存逐位相同）。
 
 ## 模块
@@ -31,6 +33,7 @@ v0.1 面向机械手单人 K 折；v0.2 增加按参与者分组的协议层，�
 | `metrics` | `cell_balanced_accuracy`（PROTEUS 主指标）、`stream_mean_balanced_accuracy`（NeuralBench `bal_acc_stream_mean`）、`summarize_predictions`、`paired_subject_bootstrap`、`exact_sign_flip_pvalue`、`bootstrap_mean_ci` |
 | `protocol_diagnostics` | `collapse_summary` / `collapse_gate`（逐 cell 预测类占比、被试×类低召回与固定阈值判定）、`guard_comparison`（指定被试的配对守护比较） |
 | `priors` | `MathPriorFeatures` / `math_prior_features`：1394 维 log/相对频带功率 + Hjorth（默认 CPU，保证复现 0.5113） |
+| `prior_residual` | `PriorResidualEEG`：冻结主分类分数，使用类别专属与全导联卷积的有界分数修正 |
 | `nets` | `MultiScaleTemporalEnergy`、`BandCovarianceProjection`、`MathPriorMultiScaleCovNet`（M1）、`PowerFirstMathPriorNet`（M2）、`make_model`、`train_model`、`predict_proba`、`sampling_weights` |
 | `deep_models` | 可选 Braindecode 网络以及本地 EEG-ResNet、InceptionTime 工厂与折内训练；验证集按试次划分，测试窗口概率按试次平均 |
 | `frontier_models` / `frontier_advanced` | 前沿 EEG 候选结构与损失。前者含 STMambaNet、EEGSimpleConv、EEG-MFTNet、2025 EEGMamba foundation model、EEGM2；后者含 EEGMamba2024（arXiv:2407.20254）、DCT 系列 GADCN、Phase-SPDNet 及其余候选。部分 Mamba-2 encoder/decoder 需要 Linux/CUDA 可选依赖；可运行结构不代表论文完整训练复现。论文核验和复现边界见模型目录及审计文档 |
