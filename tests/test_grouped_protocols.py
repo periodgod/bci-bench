@@ -180,6 +180,30 @@ class TorchTests(unittest.TestCase):
             m = nets.make_model(f, y, v)
             self.assertEqual(nets.predict_proba(m, X, f, "cpu").shape, (12, 3))
 
+    def test_m2_reference_switch(self):
+        import torch
+
+        from wyu_bci_bench.nets import PowerFirstMathPriorNet
+        from wyu_bci_bench.priors import MathPriorFeatures
+
+        rng = np.random.default_rng(3)
+        x = torch.from_numpy(rng.normal(size=(2, 4, 480)).astype(np.float32) * 20)
+        x_car = x - x.mean(dim=1, keepdim=True)
+        prior_car = MathPriorFeatures()
+        prior_raw = MathPriorFeatures(car=False)
+        features = prior_car(x)
+        torch.testing.assert_close(features, prior_raw(x_car))
+        self.assertFalse(torch.allclose(features, prior_raw(x)))
+
+        width = features.shape[1]
+        args = (np.zeros(width), np.ones(width), np.zeros((3, width)), np.zeros(3))
+        model_car = PowerFirstMathPriorNet(*args, bins=4, n_channels=4).eval()
+        model_raw = PowerFirstMathPriorNet(*args, bins=4, n_channels=4, car=False).eval()
+        model_raw.load_state_dict(model_car.state_dict())
+        with torch.inference_mode():
+            torch.testing.assert_close(model_car(x, features), model_raw(x_car, features))
+            self.assertFalse(torch.allclose(model_car.multiscale(x), model_raw.multiscale(x)))
+
     def test_ssl_losses_finite(self):
         import torch
 

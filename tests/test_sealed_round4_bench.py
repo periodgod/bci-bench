@@ -74,6 +74,29 @@ class SplitTest(unittest.TestCase):
 
 
 class SoftmaxRegressionTest(unittest.TestCase):
+    def test_feature_multiplier_and_frozen_logits(self):
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.preprocessing import StandardScaler
+
+        from wyu_bci_bench.linear_torch import fit_softmax_regression
+
+        rng = np.random.default_rng(8)
+        features = rng.normal(size=(180, 4))
+        labels = (features[:, 0] > 0).astype(int) + (features[:, 1] > 0).astype(int)
+        multiplier = np.array([2., 1., .5, 1.])
+        weighted = fit_softmax_regression(features, labels, C=.1, feature_multiplier=multiplier)
+        transformed = StandardScaler().fit_transform(features) * multiplier
+        reference = LogisticRegression(C=.1, tol=1e-10).fit(transformed, labels)
+        np.testing.assert_allclose(weighted.predict_proba(features), reference.predict_proba(transformed), atol=1e-3)
+
+        offset = np.eye(3)[labels] * 4
+        residual = fit_softmax_regression(features, labels, C=.1, offset_logits=offset)
+        combined = residual.predict_proba(features, offset_logits=offset)
+        np.testing.assert_array_equal(combined.argmax(axis=1), labels)
+        self.assertLess(np.linalg.norm(residual.weight), np.linalg.norm(weighted.weight))
+        with self.assertRaises(ValueError):
+            residual.predict_proba(features, offset_logits=offset[:, :2])
+
     def test_matches_sklearn(self):
         from sklearn.linear_model import LogisticRegression
         from sklearn.preprocessing import StandardScaler
@@ -88,6 +111,34 @@ class SoftmaxRegressionTest(unittest.TestCase):
         z = StandardScaler().fit(F).transform(F)
         p_sk = sk.predict_proba(z)
         self.assertLess(np.abs(model.predict_proba(F) - p_sk).max(), 1e-3)
+
+
+class EnergyAdaptationTest(unittest.TestCase):
+    def test_zero_gain_preserves_m2_and_temporal_gains_reduce_training_loss(self):
+        import torch
+        from torch.nn import functional as F
+
+        from wyu_bci_bench.energy_adaptation import fit_energy_gains, gain_logits, spatial_energy_terms
+        from wyu_bci_bench.nets import PowerFirstMathPriorNet
+
+        torch.manual_seed(11)
+        model = PowerFirstMathPriorNet(np.zeros(5), np.ones(5), np.zeros((3, 5)), np.zeros(3),
+                                       bins=4, n_channels=4).eval().requires_grad_(False)
+        eeg = torch.randn(9, 4, 120) * 15
+        features = torch.zeros(9, 5)
+        energy = model.multiscale.channel_log_energy(eeg)
+        mask = torch.tensor([[1, 1, 0, 0], [0, 0, 1, 0]])
+        whole, regional = spatial_energy_terms(energy, model.multiscale.spatial_weight, mask)
+        args = (model.temporal_head, model.temporal_gate, model.math_prior(features), whole, regional)
+        initial = gain_logits(*args, torch.zeros(3, 2, 4))
+        torch.testing.assert_close(initial, model(eeg, features))
+        labels = torch.arange(9) % 3
+        gains = fit_energy_gains(*args, labels, by_half=True)
+        self.assertLess(float(F.cross_entropy(gain_logits(*args, gains), labels)),
+                        float(F.cross_entropy(initial, labels)))
+        torch.testing.assert_close(gains[..., 0], gains[..., 1])
+        torch.testing.assert_close(gains[..., 2], gains[..., 3])
+        self.assertLessEqual(float(gains.abs().max()), .5)
 
 
 class ShallowConvNetTest(unittest.TestCase):

@@ -186,9 +186,10 @@ if nn is not None:
         时间尾部余数不会进入任何 bin，调用方需遵守实验输入长度合同。
         """
 
-        def __init__(self, bins, n_channels=41):
+        def __init__(self, bins, n_channels=41, *, car=True):
             super().__init__()
             self.bins = bins
+            self.car = car
             self.temporal = nn.ModuleList([
                 nn.Sequential(nn.Conv2d(1, 6, (1, k), padding=(0, k // 2), bias=False), nn.BatchNorm2d(6))
                 for k in (15, 31, 63)])
@@ -198,28 +199,38 @@ if nn is not None:
             self.dropout = nn.Dropout(0.2)
             self.out_features = 3 * 8 * bins
 
-        def forward(self, raw):
-            """输入 ``(B,C,T)`` 微伏 EEG，输出按尺度和时间 bin 展平的特征。"""
-            x = ((raw - raw.mean(dim=1, keepdim=True)) / 100.).unsqueeze(1)
+        def channel_log_energy(self, raw):
+            """输入微伏 EEG，返回 ``(B, scale, filter, channel, bin)`` 的对数能量。"""
+            if self.car:
+                raw = raw - raw.mean(dim=1, keepdim=True)
+            x = (raw / 100.).unsqueeze(1)
             outputs = []
             width = x.shape[-1] // self.bins
-            for scale, temporal in enumerate(self.temporal):
+            for temporal in self.temporal:
                 z = F.gelu(temporal(x))
-                bins = []
-                for i in range(self.bins):
-                    power = z[..., i * width:(i + 1) * width].square().mean(dim=-1).clamp_min(1e-7).log()
-                    bins.append(F.gelu(torch.einsum("bfc,kfc->bk", power, self.spatial_weight[scale])))
+                bins = [z[..., i * width:(i + 1) * width].square().mean(dim=-1).clamp_min(1e-7).log()
+                        for i in range(self.bins)]
+                outputs.append(torch.stack(bins, dim=-1))
+            return torch.stack(outputs, dim=1)
+
+        def forward(self, raw):
+            """输入 ``(B,C,T)`` 微伏 EEG，输出按尺度和时间 bin 展平的特征。"""
+            energy = self.channel_log_energy(raw)
+            outputs = []
+            for scale, weights in enumerate(self.spatial_weight):
+                bins = [F.gelu(torch.einsum("bfc,kfc->bk", energy[:, scale, ..., i].contiguous(), weights))
+                        for i in range(self.bins)]
                 outputs.append(torch.stack(bins, dim=-1).flatten(1))
             return self.dropout(torch.cat(outputs, dim=-1))
 
     class PowerFirstMathPriorNet(nn.Module):
         """M2：冻结先验分类器与门控 power-first 时域残差相加。"""
 
-        def __init__(self, mean, scale, coef, intercept, bins, n_classes=3, n_channels=41):
+        def __init__(self, mean, scale, coef, intercept, bins, n_classes=3, n_channels=41, *, car=True):
             super().__init__()
             self.register_buffer("math_mean", torch.as_tensor(mean, dtype=torch.float32))
             self.register_buffer("math_scale", torch.as_tensor(scale, dtype=torch.float32))
-            self.multiscale = PowerFirstTemporalEnergy(bins, n_channels=n_channels)
+            self.multiscale = PowerFirstTemporalEnergy(bins, n_channels=n_channels, car=car)
             self.temporal_head = nn.Sequential(nn.Linear(self.multiscale.out_features, 24), nn.GELU(),
                                                nn.Dropout(0.25), nn.Linear(24, n_classes))
             self.temporal_gate = nn.Parameter(torch.tensor(-1.8))

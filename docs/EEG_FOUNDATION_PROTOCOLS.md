@@ -35,6 +35,8 @@ v0.1 面向机械手单人 K 折；v0.2 增加按参与者分组的协议层，�
 | `priors` | `MathPriorFeatures` / `math_prior_features`：1394 维 log/相对频带功率 + Hjorth（默认 CPU，保证复现 0.5113） |
 | `prior_residual` | `PriorResidualEEG`：冻结主分类分数，使用类别专属与全导联卷积的有界分数修正 |
 | `nets` | `MultiScaleTemporalEnergy`、`BandCovarianceProjection`、`MathPriorMultiScaleCovNet`（M1）、`PowerFirstMathPriorNet`（M2）、`make_model`、`train_model`、`predict_proba`、`sampling_weights` |
+| `linear_torch` | `fit_softmax_regression` 支持标准化后的特征乘数和折内冻结 logits，分别用于分组 L2 正则和残差读出 |
+| `energy_adaptation` | `spatial_energy_terms` 复用 M2 的卷积能量与空间投影拆出区域贡献，`fit_energy_gains` 在训练折内拟合区域增益，可让前后半窗共享或分别学习 |
 | `deep_models` | 可选 Braindecode 网络以及本地 EEG-ResNet、InceptionTime 工厂与折内训练；验证集按试次划分，测试窗口概率按试次平均 |
 | `frontier_models` / `frontier_advanced` | 前沿 EEG 候选结构与损失。前者含 STMambaNet、EEGSimpleConv、EEG-MFTNet、2025 EEGMamba foundation model、EEGM2；后者含 EEGMamba2024（arXiv:2407.20254）、DCT 系列 GADCN、Phase-SPDNet 及其余候选。部分 Mamba-2 encoder/decoder 需要 Linux/CUDA 可选依赖；可运行结构不代表论文完整训练复现。论文核验和复现边界见模型目录及审计文档 |
 | `cocot` | CoCoT-EEG 多尺度卷积 → L2 patch → Fourier 时间位置编码 → Transformer；`make_cocot_model` 构建模型，`fit_predict_cocot` 在训练折内监督微调，支持严格 encoder state 与可选 Mixup |

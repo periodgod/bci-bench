@@ -33,18 +33,19 @@ def prior_feature_dim(n_channels: int = 41, n_segments: int = 2, n_bands: int = 
 if nn is not None:
 
     class MathPriorFeatures(nn.Module):
-        """Window-local CAR, then per-segment log power, relative power and log Hjorth.
+        """Optional window-local CAR, then per-segment log power, relative power and log Hjorth.
 
         ``learn_edges=True`` lets each band edge move by at most 1 Hz (the
         differentiable-feature experiment); the prior itself uses fixed edges.
         """
 
         def __init__(self, learn_edges: bool = False, fs: float = 120.0, segment_length: int = 240,
-                     segment_starts: tuple[int, ...] = (0, 240), bands=PRIOR_BANDS):
+                     segment_starts: tuple[int, ...] = (0, 240), bands=PRIOR_BANDS, *, car: bool = True):
             super().__init__()
             self.fs = float(fs)
             self.segment_length = int(segment_length)
             self.segment_starts = tuple(segment_starts)
+            self.car = car
             self.center_edges = torch.tensor(bands, dtype=torch.float32)
             self.edge_delta = nn.Parameter(torch.zeros_like(self.center_edges), requires_grad=learn_edges)
             self.register_buffer("hann", torch.hann_window(self.segment_length, periodic=True))
@@ -56,7 +57,8 @@ if nn is not None:
 
         def forward(self, x):
             """输入 ``(N,C,T)`` 微伏 EEG，输出每窗一行的拼接数学先验特征。"""
-            x = x - x.mean(dim=1, keepdim=True)
+            if self.car:
+                x = x - x.mean(dim=1, keepdim=True)
             edges = self.band_edges()
             hann = self.hann.to(dtype=x.dtype)
             freqs = self.freqs.to(dtype=x.dtype)
