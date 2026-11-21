@@ -197,10 +197,7 @@ pytest tests/test_biot.py -q    # 单模块
 [bci-foundation-model](https://github.com/periodgod/bci-foundation-model) ·
 [bci-arm-robot](https://github.com/periodgod/bci-arm-robot) ·
 [bci-visual-app](https://github.com/periodgod/bci-visual-app) ·
-[bci-mer](https://github.com/periodgod/bci-mer) ·
-[bci-rehab](https://github.com/periodgod/bci-rehab) ·
-[bci-proteus](https://github.com/periodgod/bci-proteus) ·
-[bci-omnieeg](https://github.com/periodgod/bci-omnieeg)
+[bci-mer](https://github.com/periodgod/bci-mer)
 
 ---
 
